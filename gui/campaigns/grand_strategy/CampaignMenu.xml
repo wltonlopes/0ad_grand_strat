@@ -2,8 +2,8 @@
 
 <objects>
 	<script file="gui/maps/MapCache.js"/>
-	<script directory="gui/gamesettings/"/>
-	<script directory="gui/gamesettings/attributes/"/>
+	<script directory="gamesettings/"/>
+	<script directory="gamesettings/attributes/"/>
 
 	<!-- Game data scripts loaded first. -->
 	<script directory="gui/campaigns/grand_strategy/game/"/>
@@ -113,7 +113,7 @@
 		<!-- GFX -->
 		<object z="10">
 			<!-- Provinces -->
-			<repeat count="40">
+			<repeat count="69">
 				<object name="mapProvince[n]" hidden="true">
 					<object z="10" type="button" name="mapProvinceSprite[n]" sprite="" size="200 200 300 300"/>
 					<object z="20" type="button" name="mapProvinceCity[n]" ghost="true" sprite="color:0 0 0 50:textureAsMask:stretched:session/icons/construction.png" hidden="true" size="0 0 16 16"/>

@@ -2,7 +2,6 @@
  * Run metadata for the 'grand_strategy' metagame.
  */
 var g_GameData;
-
 class GameData
 {
 	constructor()
@@ -152,7 +151,7 @@ class GameData
 				if (prov !== playerData.startProvince)
 					this.provinces[prov].setOwner(code);
 		}
-
+ 
 		this.difficulty = difficulty;
 
 		this.save();
@@ -165,6 +164,12 @@ class GameData
 		{
 			let file = files[i];
 			let data = Engine.ReadJSONFile(file);
+
+			if (!data)
+			{
+				error("DATA IS NULL");
+				continue;
+			}
 			this.provinces[data.code] = new Province(data);
 		}
 
@@ -173,6 +178,12 @@ class GameData
 		{
 			let file = files[i];
 			let data = Engine.ReadJSONFile(file);
+
+			if (!data)
+			{
+				error("DATA IS NULL");
+				continue;
+			}
 			this.tribes[data.code] = new Tribe(data);
 		}
 	}
@@ -212,8 +223,8 @@ class GameData
 		let gameSettings = new GameSettings().init();
 		gameSettings.fromInitAttributes(settings);
 		// TODO: pass translated name, description, preview.
-		gameSettings.mapName.set(`${this.tribes[attackerTribe].data.name} attack on ${province.name}`);
-
+		// gameSettings.mapName.set(`${this.tribes[attackerTribe].data.name} attack on ${province.name}`);
+		
 		// TODO: add function to do this.
 		if (province.data?.mapTypes !== undefined)
 		{
@@ -226,6 +237,8 @@ class GameData
 				// TODO: biomes should support random
 				//gameSettings.map.setRandomOptions(combination.maps.map(x => "maps/" + x));
 				gameSettings.map.selectMap(pickRandom(combination.maps.map(x => "maps/" + x)));
+				warn("SELECTED MAP = " + uneval(gameSettings.map));
+                warn("MAP PATH = " + gameSettings.map.map);
 			}
 			if (combination?.biomes)
 			{
@@ -257,7 +270,8 @@ class GameData
 				"name": Engine.ConfigDB_GetValue("user", "playername.singleplayer") || Engine.GetSystemUsername()
 			}
 		};
-		gameSettings.launchGame(assignments);
+		warn("ATTRIBS = " + uneval(gameSettings.toInitAttributes()));
+        gameSettings.launchGame(assignments, false);
 		Engine.SwitchGuiPage("page_loading.xml", {
 			"attribs": gameSettings.toInitAttributes(),
 			"playerAssignments": assignments

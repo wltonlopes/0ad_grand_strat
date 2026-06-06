@@ -256,9 +256,14 @@ class CampaignMenu
 				icon.onPress = () => { this.displayTribeDetails(-1); this.selectedProvince = province.code; };
 				icon.onMouseRightPress = () => { this.displayContextualPanel(province.code); };
 				province.icon = icon;
-				province.icon.mouse_event_mask = "texture:campaigns/grand_strategy/provinces/" + province.code + ".png";
+				// province.icon.mouse_event_mask ="texture:ui/campaigns/grand_strategy/provinces/" + province.code + ".png";
 			}
 			province.icon.size = this.toGUISize(...province.gfxdata.size);
+			if (!province.gfxdata || !province.gfxdata.size)
+				{
+					warn("NO GFXDATA FOR " + province.code);
+					continue;
+				}
 			const cityIcon = Engine.GetGUIObjectByName(province.icon.name.replace("Sprite", "City"));
 			if (province.ownerTribe)
 			{
@@ -271,6 +276,13 @@ class CampaignMenu
 
 			const inLos = province.ownerTribe === hero.tribe || code == hero.location || los.indexOf(code) !== -1;
 			let color = province.getColor();
+
+			if (
+				!color ||
+				isNaN(color[0]) ||
+				isNaN(color[1]) ||
+				isNaN(color[2])
+			)
 			color.push(province.ownerTribe ? 70 : 30);
 			if (!inLos)
 			{
@@ -281,9 +293,11 @@ class CampaignMenu
 			}
 			if (province.code === this.selectedProvince)
 				color[3] = 100;
-			color = color.join(" ");
-			province.icon.sprite = `color:${color}:stretched:textureAsMask:campaigns/grand_strategy/provinces/${province.code}.png`;
+			let colorString = color.join(" ");
+			let sprite =`color:${colorString}:textureAsMask:stretched:campaigns/grand_strategy/provinces/${province.code}.png`;
+			province.icon.sprite = sprite;
 		}
+
 
 		// Render event
 		const didRenderEvent = this.eventPanel.renderEvents(g_GameData.turnEvents);

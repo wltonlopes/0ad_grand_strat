@@ -4,7 +4,14 @@ class Province
 	{
 		this.code = data.code;
 		this.data = data;
-		this.gfxdata = Engine.ReadJSONFile(`art/textures/ui/campaigns/grand_strategy/provinces/${this.code}.json`);
+
+		let path =
+			"campaigns/grand_strategy/gfxdata/" +
+			this.code +
+			".json";
+		this.gfxdata = Engine.ReadJSONFile(path);
+		if (!this.gfxdata)
+			this.gfxdata = { "size": [0, 0, 100, 100]};
 		this.icon = undefined;
 		this.ownerTribe = undefined;
 		this.name = this.data.name;
@@ -37,7 +44,9 @@ class Province
 	getColor()
 	{
 		if (this.ownerTribe)
+		{
 			return g_GameData.tribes[this.ownerTribe].color.split(" ");
+		}
 		const r = Math.floor(this.data.hash / 1000000);
 		const g = Math.floor((this.data.hash - r * 1000000) / 1000);
 		const b = Math.floor((this.data.hash - r * 1000000 - g * 1000));

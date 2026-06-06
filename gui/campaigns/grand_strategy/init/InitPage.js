@@ -17,7 +17,7 @@ class InitPage
 
 		Engine.GetGUIObjectByName("campaignImage").sprite = "stretched:campaigns/grand_strategy/art/banner.png";
 
-		Engine.GetGUIObjectByName("playerSettings").caption = "Customize your civilization";
+	    Engine.GetGUIObjectByName("playerSettings").caption = "Customize your civilization";
 
 		Engine.GetGUIObjectByName("civSelectLabel").caption = "Civilization:";
 		this.civSelect = Engine.GetGUIObjectByName("civSelect");
@@ -140,24 +140,10 @@ class InitPage
 		this.startButton.enabled = ok;
 	}
 
-	onStartRequest()
-	{
-		Engine.PushGuiPage(
-			"page_msgbox.xml",
-			{
-				"width": 450,
-				"height": 200,
-				"title": "Start Campaign?",
-				"message": sprintf("You have chosen to start a campaign as a %(civ)s tribe called the “%(tribe)s”, in %(prov)s.\nConfirm?",
-					{
-						"tribe": this.tribeName.caption,
-						"civ": this.civSelect.list[this.civSelect.selected],
-						"prov": this.provinceSelect.list[this.provinceSelect.selected],
-					}),
-				"buttonCaptions": ["No", "Yes"],
-			},
-			(button) => { if (button === 1) this.actuallyStart(); });
-	}
+onStartRequest()
+{
+    this.actuallyStart();
+}
 
 	actuallyStart()
 	{
