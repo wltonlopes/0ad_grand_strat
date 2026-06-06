@@ -43,7 +43,6 @@ class CampaignMenu
 
 		this.render();
 	}
-
 	goBackToMainMenu()
 	{
 		g_GameData.save();
@@ -52,7 +51,7 @@ class CampaignMenu
 
 	openLoadSave()
 	{
-		Engine.PushGuiPage("campaigns/grand_strategy/loadsave/page.xml", {
+		Engine.SwitchGuiPage("campaigns/grand_strategy/loadsave/page.xml", {
 			"gameData": g_GameData.Serialize(),
 		});
 	}
@@ -247,6 +246,7 @@ class CampaignMenu
 		let i = 0;
 		for (let code in g_GameData.provinces)
 		{
+			
 			let province = g_GameData.provinces[code];
 			if (!province.icon)
 			{
