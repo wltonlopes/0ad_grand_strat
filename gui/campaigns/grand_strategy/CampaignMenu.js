@@ -35,6 +35,7 @@ class CampaignMenu
 
 	initialise()
 	{
+
 		if (this.run.data.gameData)
 			GameData.loadRun();
 
@@ -58,6 +59,7 @@ class CampaignMenu
 
 	doFinishTurn()
 	{
+		this.displayContextualPanel(-1);
 		Engine.GetGUIObjectByName("computingTurn").hidden = false;
 	}
 
@@ -256,7 +258,7 @@ class CampaignMenu
 				icon.onPress = () => { this.displayTribeDetails(-1); this.selectedProvince = province.code; };
 				icon.onMouseRightPress = () => { this.displayContextualPanel(province.code); };
 				province.icon = icon;
-				// province.icon.mouse_event_mask ="texture:ui/campaigns/grand_strategy/provinces/" + province.code + ".png";
+				province.icon.mouse_event_mask ="texture:campaigns/grand_strategy/provinces/" + province.code + ".png";
 			}
 			province.icon.size = this.toGUISize(...province.gfxdata.size);
 			if (!province.gfxdata || !province.gfxdata.size)
