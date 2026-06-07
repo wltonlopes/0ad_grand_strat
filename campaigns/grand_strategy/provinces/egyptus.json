@@ -1,0 +1,13 @@
+{
+    "code": "egyptus",
+    "name": "Egyptus",
+    "hash": 100090003,
+    "links": [
+        "cyrenaica",
+        "nile_delta"
+    ],
+    "mapTypes": ["the_nile"],
+    "civs": [
+        "kush"
+    ]
+}
