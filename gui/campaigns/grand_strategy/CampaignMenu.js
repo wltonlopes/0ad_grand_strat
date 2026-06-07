@@ -258,6 +258,7 @@ class CampaignMenu
 				icon.onPress = () => { this.displayTribeDetails(-1); this.selectedProvince = province.code; };
 				icon.onMouseRightPress = () => { this.displayContextualPanel(province.code); };
 				province.icon = icon;
+				province.icon.z = province.data.provinceType == "sea" ? 1 : 10;
 				province.icon.mouse_event_mask ="texture:campaigns/grand_strategy/provinces/" + province.code + ".png";
 			}
 			province.icon.size = this.toGUISize(...province.gfxdata.size);

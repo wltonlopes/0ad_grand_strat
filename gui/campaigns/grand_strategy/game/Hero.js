@@ -49,13 +49,34 @@ class Hero
 		this.actionsLeft--;
 	}
 
+	// canAttack(code)
+	// {
+	// 	return !this.ownsProvince(code) && this.actionsLeft >= 1;
+	// }
+
 	canAttack(code)
 	{
-		return !this.ownsProvince(code) && this.actionsLeft >= 1;
+		const province = g_GameData.provinces[code];
+
+		if (province.data.provinceType === "sea")
+			return false;
+
+		return !this.ownsProvince(code) &&
+			this.actionsLeft >= 1;
 	}
 
+	// doAttack(code)
+	// {
+	// 	this.actionsLeft--;
+	// 	return g_GameData.playOutAttack(this.tribe, code);
+	// }
 	doAttack(code)
 	{
+		const province = g_GameData.provinces[code];
+
+		if (province.data.provinceType === "sea")
+			return false;
+
 		this.actionsLeft--;
 		return g_GameData.playOutAttack(this.tribe, code);
 	}

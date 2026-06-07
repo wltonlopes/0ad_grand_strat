@@ -191,14 +191,23 @@ class GameData
 	/**
 	 * Generate a map and play out an attack.
 	 */
-	playOutAttack(attackerTribe, provinceCode)
-	{
-		let province = this.provinces[provinceCode];
-		if (province.ownerTribe == attackerTribe)
+	// playOutAttack(attackerTribe, provinceCode)
+	// {
+	// 	let province = this.provinces[provinceCode];
+	// 	if (province.ownerTribe == attackerTribe)
+	// 	{
+	// 		error("Cannot attack your own province");
+	// 		return;
+	// 	}
+		playOutAttack(attackerTribe, provinceCode)
 		{
-			error("Cannot attack your own province");
-			return;
-		}
+			let province = this.provinces[provinceCode];
+
+			if (province.data.provinceType === "sea")
+			{
+				warn("Cannot attack sea provinces");
+				return;
+			}
 
 		// TODO: should snapshot or something, also this assumes human player involved.
 		this.save();

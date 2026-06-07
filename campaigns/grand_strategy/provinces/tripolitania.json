@@ -1,0 +1,9 @@
+{
+    "code": "tripolitania",
+    "hash": 100090006, 
+    "links": ["numidia", "carthage","cyrenaica"], 
+    "centerpoint": [683, 1131], 
+    "name": "Tripolitania", 
+    "mapTypes": ["desert+coastal"], 
+    "civs": ["cart"]
+}   

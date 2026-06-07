@@ -85,10 +85,13 @@ class Province
 	}
 
 	// Game
-
 	setOwner(tribe)
-	{
-		if (tribe !== this.ownerTribe)
+		{
+			if (this.data.provinceType === "sea")
+				return;
+	// setOwner(tribe)
+	// {
+	// 	if (tribe !== this.ownerTribe)
 		{
 			if (this.ownerTribe)
 				g_GameData.tribes[this.ownerTribe].LoseControl(this.code);
@@ -97,11 +100,17 @@ class Province
 		}
 	}
 
+	// getBalance()
+	// {
+	// 	return 100 - this.garrison * 50;
+	// }
 	getBalance()
 	{
+		if (this.data.provinceType === "sea")
+			return 0;
+
 		return 100 - this.garrison * 50;
 	}
-
 	// TODO: A*
 	canTravel(code)
 	{

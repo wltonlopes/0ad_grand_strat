@@ -41,8 +41,15 @@ class InitPage
 		this.civSelect.list = Object.values(this.civs).map(x => x.Name);
 		this.civSelect.list_data = Object.values(this.civs).map(x => x.Code);
 
-		this.provinceSelect.list = this.provinces.map(x => x.name);
-		this.provinceSelect.list_data = this.provinces.map(x => x.code);
+		const startProvinces = this.provinces.filter(
+			p => p.provinceType !== "sea"
+		);
+
+		this.provinceSelect.list =
+			startProvinces.map(p => p.name);
+
+		this.provinceSelect.list_data =
+			startProvinces.map(p => p.code);
 
 		this.difficultySelect.list = ["Easy", "Medium", "Hard"];
 		this.difficultySelect.list_data = ["easy", "medium", "hard"];
