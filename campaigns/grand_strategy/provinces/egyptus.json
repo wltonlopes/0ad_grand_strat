@@ -3,6 +3,7 @@
     "name": "Egyptus",
     "hash": 100090003,
     "links": [
+        "sea_med_eastern",
         "cyrenaica",
         "nile_delta"
     ],

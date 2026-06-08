@@ -1,0 +1,10 @@
+{
+"code": "sea_med_western", 
+"hash": 150000003, 
+"links": ["sea_med_central", "aquitania", "corsica_sardinia", "carthage", "tripolitania"],
+ "centerpoint": [1128, 1190], 
+ "name": "Sea of the Western Mediterranean",
+  "mapTypes": [""],
+   "civs": [""],
+   "provinceType": "sea"
+}

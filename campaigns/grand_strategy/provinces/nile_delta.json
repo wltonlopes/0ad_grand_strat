@@ -1,1 +1,1 @@
-{"code": "nile_delta", "name": "Nile Delta", "links": ["cyrenaica", "judea", "egyptus"], "centerpoint": [1312, 1356], "hash": 56195128, "mapTypes": ["the_nile"], "civs": ["ptol"]}
+{"code": "nile_delta", "name": "Nile Delta", "links": ["sea_med_eastern", "cyrenaica", "judea", "egyptus"], "centerpoint": [1312, 1356], "hash": 56195128, "mapTypes": ["the_nile"], "civs": ["ptol"]}

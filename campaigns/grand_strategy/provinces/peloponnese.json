@@ -1,1 +1,1 @@
-{"code": "peloponnese", "hash": 85193026, "links": ["thessalia", "crete"], "centerpoint": [1045, 1097], "name": "Peloponnese", "mapTypes": ["coastal+medit"], "civs": ["spart", "athen", "mace"]}
+{"code": "peloponnese", "hash": 85193026, "links": ["sea_med_central","thessalia", "crete"], "centerpoint": [1045, 1097], "name": "Peloponnese", "mapTypes": ["coastal+medit"], "civs": ["spart", "athen", "mace"]}

@@ -278,8 +278,9 @@ class CampaignMenu
 				cityIcon.hidden = true;
 
 			const inLos = province.ownerTribe === hero.tribe || code == hero.location || los.indexOf(code) !== -1;
-			let color = province.getColor();
-
+			let color = province.data.provinceType === "sea" ?
+				[255, 255, 255] :
+				province.getColor();
 			if (
 				!color ||
 				isNaN(color[0]) ||

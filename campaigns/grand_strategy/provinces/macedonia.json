@@ -1,1 +1,1 @@
-{"code": "macedonia", "hash": 134154104, "links": ["thessalia", "illyria", "napolia", "thrace"], "centerpoint": [1010, 956], "name": "Macedonia", "mapTypes": ["coastal+medit", "mountainous+medit_temp"], "civs": ["mace"]}
+{"code": "macedonia", "hash": 134154104, "links": ["sea_med_central", "sea_med_eastern","thessalia", "illyria", "napolia", "thrace"], "centerpoint": [1010, 956], "name": "Macedonia", "mapTypes": ["coastal+medit", "mountainous+medit_temp"], "civs": ["mace"]}

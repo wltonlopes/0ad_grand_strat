@@ -1,1 +1,1 @@
-{"code": "cyrenaica", "name": "Cyrenaica", "links": ["nile_delta", "egyptus", "sea_med_eastern","tripolitania"], "centerpoint": [1014, 1296], "hash": 58254204, "mapTypes": ["coastal+desert"], "civs": ["athen","ptol", "spart","kush"]}
+{"code": "cyrenaica", "name": "Cyrenaica", "links": ["sea_med_eastern", "sea_med_central", "nile_delta", "egyptus", "sea_med_eastern","tripolitania"], "centerpoint": [1014, 1296], "hash": 58254204, "mapTypes": ["coastal+desert"], "civs": ["athen","ptol", "spart","kush"]}

@@ -1,1 +1,1 @@
-{"code": "latium", "hash": 208092178, "links": ["corsica_sardinia", "friuli", "milano", "napolia"], "centerpoint": [757, 922], "name": "Latium", "mapTypes": [], "civs": ["rome"]}
+{"code": "latium", "hash": 208092178, "links": ["sea_med_western","sea_med_central", "friuli", "milano", "napolia"], "centerpoint": [757, 922], "name": "Latium", "mapTypes": [], "civs": ["rome"]}

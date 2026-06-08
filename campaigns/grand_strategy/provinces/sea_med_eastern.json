@@ -1,7 +1,7 @@
 {
 "code": "sea_med_eastern", 
 "hash": 150000001, 
-"links": ["peloponnese", "ionia", "cyrenaica","crete"],
+"links": ["sea_med_central", "thessalia", "peloponnese","syria", "ionia", "cyrenaica","crete", "cyprus", "egyptus"],
  "centerpoint": [1128, 1190], 
  "name": "Sea of the Eastern Mediterranean",
   "mapTypes": [""],

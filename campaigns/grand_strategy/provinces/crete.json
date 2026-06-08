@@ -1,7 +1,7 @@
 {
   "code": "crete",
   "hash": 150076189, 
-  "links": ["peloponnese", "ionia", "cyrenaica", "sea_med_eastern"],
+  "links": ["sea_med_eastern"],
   "centerpoint": [1128, 1190],
   "name": "Crete",
   "mapTypes": ["island+medit"],
