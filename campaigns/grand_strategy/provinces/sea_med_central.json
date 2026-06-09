@@ -2,7 +2,7 @@
 "code": "sea_med_central", 
 "hash": 150000002, 
 "links": ["sea_med_western", "sea_med_eastern", "thessalia", "peloponnese","tripolitania", "ionia", "cyrenaica","napolia", "sicilia", "latium", "friuli", "illyria", "macedonia"],
- "centerpoint": [1128, 1190], 
+ "centerpoint": [950, 1150], 
  "name": "Sea of the Central Mediterranean",
   "mapTypes": [""],
    "civs": [""],

@@ -37,10 +37,7 @@ class MapTypes
 			if (nextToken === -1)
 				nextToken = sp.length;
 			if (!(token in this.mapTypes))
-			{
-				warn("Unknow map type '" + token + "'");
-				break;
-			}
+				continue;
 			biomes = biomes.concat(this.mapTypes[token].data.biomes ?? []);
 			maps = maps.concat(this.mapTypes[token].data.maps ?? []);
 		}

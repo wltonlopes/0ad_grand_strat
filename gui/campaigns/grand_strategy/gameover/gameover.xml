@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<objects>
+		<script file="gui/campaigns/grand_strategy/gameover/GameOver.js"/>
+
+		<object
+			type="image"
+			sprite="campaignBackground"
+			size="0 0 100% 100%"
+			name="gameOverWindow">
+
+			<object
+				type="image"
+				sprite="panelShader"
+				size="50%-400 80 50%+400 100%-80">
+
+				<object
+					name="title"
+					type="text"
+					style="ModernLabelText"
+					size="0 16 100% 48"/>
+
+				<object
+					name="message"
+					type="text"
+					style="ModernLabelText"
+					size="32 64 100%-32 100%-96"/>
+
+				<object
+					name="newCampaignButton"
+					type="button"
+					style="StoneButtonFancy"
+					size="100%-240 100%-40 100% 100%">
+
+					<translatableAttribute id="caption">
+						Start New Campaign
+					</translatableAttribute>
+
+				</object>
+
+			</object>
+
+		</object>
+</objects>

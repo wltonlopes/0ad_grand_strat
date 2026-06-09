@@ -246,8 +246,6 @@ class GameData
 				// TODO: biomes should support random
 				//gameSettings.map.setRandomOptions(combination.maps.map(x => "maps/" + x));
 				gameSettings.map.selectMap(pickRandom(combination.maps.map(x => "maps/" + x)));
-				warn("SELECTED MAP = " + uneval(gameSettings.map));
-                warn("MAP PATH = " + gameSettings.map.map);
 			}
 			if (combination?.biomes)
 			{

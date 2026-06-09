@@ -14,6 +14,102 @@ class GSAttack extends GSEvent
 	{
 		return true;
 	}
+//
+	getAutoresolveChance() {
+		let province =
+			g_GameData.provinces[this.data.target];
+
+		// Base chance: 50%
+		let chance = 50;
+
+		// Each garrison level adds 4.5%
+		chance += province.garrison * 4.5;
+
+		// Future expansion:
+		// if (province.isCapital)
+		//     chance += 5;
+		//
+		// if (g_GameData.playerHero.location == province.code)
+		//     chance += 5;
+
+		return Math.min(chance, 95);
+
+	}
+
+	getAutoresolveTooltip() {
+		return sprintf(
+			"Current chance of victory: %(chance)s%%",
+			{
+				"chance":
+					Math.round(
+						this.getAutoresolveChance()
+					)
+			}
+		);
+	}
+
+autoResolve()
+{
+	let province =
+		g_GameData.provinces[this.data.target];
+
+	let attacker =
+		g_GameData.tribes[this.data.attacker];
+
+	let chance =
+		this.getAutoresolveChance();
+
+	let roll =
+		randIntInclusive(1, 100);
+
+	// Defensores vencem
+	if (roll <= chance)
+	{
+		warn(
+			"The defenders of " +
+			province.getName() +
+			" successfully repelled an attack."
+		);
+
+		this.processed = true;
+		return;
+	}
+
+	let defender = province.ownerTribe;
+
+	province.setOwner(this.data.attacker);
+
+	let stillAlive = false;
+
+	let playerOwned = 0;
+
+	for (let code in g_GameData.provinces)
+	{
+		if (g_GameData.provinces[code].ownerTribe == g_GameData.playerTribe)
+			playerOwned++;
+	}
+
+	if (playerOwned == 0)
+	{
+		Engine.SwitchGuiPage(
+			"campaigns/grand_strategy/gameover/page.xml",
+			{
+				"title": "Defeat",
+				"message":
+					"Your kingdom has fallen.\n\n" +
+					"You survived " +
+					g_GameData.turn +
+					" turns."
+			}
+		);
+
+		return;
+
+	}
+
+	this.processed = true;
+}
+//
 
 	setupPanel(descObj, buttons)
 	{
@@ -23,18 +119,7 @@ class GSAttack extends GSEvent
 			"attacker": g_GameData.tribes[this.data.attacker].getName(),
 			"prov": g_GameData.provinces[this.data.target].getName(),
 		});
-		return [
-			{
-				"caption": "Auto-resolve",
-				"tooltip": "(NB: this is at the moment a guaranteed win)",
-				"action": () => {},
-			},
-			{
-				"caption": "Take Control",
-				"tooltip": "This will start a Skirmish where you must win to defend your land.",
-				"action": () => g_GameData.playOutAttack(this.data.attacker, this.data.target),
-			}
-		];
+	return [ { "caption": "Auto-resolve", "tooltip": this.getAutoresolveTooltip(), "action": () => this.autoResolve(), }, { "caption": "Take Control", "tooltip": "This will start a Skirmish where you must win to defend your land.", "action": () => g_GameData.playOutAttack( this.data.attacker, this.data.target ), } ];
 	}
 
 	getTickerText()
