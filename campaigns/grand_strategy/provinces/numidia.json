@@ -1,1 +1,1 @@
-{"code": "numidia", "hash": 100090005, "links": ["mauritania", "carthage", "tripolitania"], "centerpoint": [683, 1131], "name": "Numidia", "mapTypes": ["desert+mainland"], "civs": ["cart"]}
+{"code": "numidia", "hash": 100090005, "links": ["sea_med_western","mauritania", "carthage", "tripolitania"], "centerpoint": [525, 1160], "name": "Numidia", "mapTypes": ["desert+mainland"], "civs": ["cart"]}

@@ -28,9 +28,9 @@ class GSAttack extends GSEvent
 		// Future expansion:
 		// if (province.isCapital)
 		//     chance += 5;
-		//
-		// if (g_GameData.playerHero.location == province.code)
-		//     chance += 5;
+		
+		if (g_GameData.playerHero.location == province.code)
+		    chance += 5;
 
 		return Math.min(chance, 95);
 

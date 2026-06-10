@@ -2,7 +2,7 @@
     "code": "tripolitania",
     "hash": 100090006, 
     "links": ["numidia", "carthage","cyrenaica","sea_med_central"], 
-    "centerpoint": [683, 1131], 
+    "centerpoint": [803, 1300], 
     "name": "Tripolitania", 
     "mapTypes": ["desert+coastal"], 
     "civs": ["cart"]
