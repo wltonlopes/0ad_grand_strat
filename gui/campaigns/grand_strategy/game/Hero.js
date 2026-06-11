@@ -58,7 +58,7 @@ class Hero
 	{
 		const province = g_GameData.provinces[code];
 
-		if (province.data.provinceType === "sea")
+		if (province.isSea())
 			return false;
 
 		return !this.ownsProvince(code) &&
@@ -74,7 +74,7 @@ class Hero
 	{
 		const province = g_GameData.provinces[code];
 
-		if (province.data.provinceType === "sea")
+		if (province.isSea())
 			return false;
 
 		this.actionsLeft--;

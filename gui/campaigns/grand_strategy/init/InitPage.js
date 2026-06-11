@@ -102,13 +102,13 @@ class InitPage
 	{
 		if (this.provinceSelect.selected === -1 || !this.customProvince)
 		{
-			this.provinceSelect.selected = this.getDefaultStartingProvince(this.civSelect.list_data[this.civSelect.selected]);
-			this.customProvince = false; // Need to reset this.
-		}
+			// this.provinceSelect.selected = this.getDefaultStartingProvince(this.civSelect.list_data[this.civSelect.selected]);
 		if (!this.heroName.caption || !this.customHeroName)
 			this.heroName.caption = pickRandom(this.civs[this.civSelect.list_data[this.civSelect.selected]].AINames);
 		if (!this.tribeName.caption || !this.customTribeName)
 			this.tribeName.caption = this.civSelect.list[this.civSelect.selected];
+		}
+
 	}
 
 	render()
@@ -181,30 +181,38 @@ onStartRequest()
 
 	loadProvinces()
 	{
-		const files = Engine.ListDirectoryFiles("campaigns/grand_strategy/provinces/", "**.json", false);
-		return files.map(x => Engine.ReadJSONFile(x));
+		let geo =
+			new GeoProvinceManager();
+
+		return geo.data.features.map(
+			f => f.properties
+		);
 	}
 
-	getDefaultStartingProvince(code)
-	{
-		return this.provinces.findIndex(x => x.code === {
-			"athen": "thessalia",
-			"brit": "london",
-			"cart": "carthage",
-			"gaul": "central_gaul",
-			"iber": "iberia",
-			"mace": "macedonia",
-			"pers": "phrygia",
-			"ptol": "nile_delta",
-			"rome": "latium",
-			"sele": "thrace",
-			"spart": "peloponnese",
-		}[code]);
+	// getDefaultStartingProvince(code)
+	// {
+	// 	return this.provinces.findIndex(x => x.code === {
+	// 		"athen": "thessalia",
+	// 		"brit": "london",
+	// 		"cart": "carthage",
+	// 		"gaul": "central_gaul",
+	// 		"iber": "iberia",
+	// 		"mace": "macedonia",
+	// 		"pers": "phrygia",
+	// 		"ptol": "nile_delta",
+	// 		"rome": "latium",
+	// 		"sele": "thrace",
+	// 		"spart": "peloponnese",
+	// 		}[code]);
+	// 	}
+		getDefaultStartingProvince(code)
+		{
+			return 0;
+		}
 	}
-}
 
-function init()
-{
-	const page = new InitPage();
-	page.render();
-}
+		function init()
+		{
+			const page = new InitPage();
+			page.render();
+		}

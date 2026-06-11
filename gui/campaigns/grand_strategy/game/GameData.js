@@ -6,10 +6,15 @@ class GameData
 {
 	constructor()
 	{
+		this.geo =new GeoProvinceManager();
 		this.turn = 0;
 		this.provinces = {};
 		this.tribes = {};
+		// TESTE GEOJSON
+		this.data =Engine.ReadJSONFile("campaigns/grand_strategy/data/provinces.geojson");
+		this.neighbourCache = {};
 
+		//
 		this.difficulty = "medium";
 
 		this.playerTribe = undefined;
@@ -59,7 +64,18 @@ class GameData
 		this.parseHistory();
 
 		this.turn = data.turn;
+		let province =
+			this.provinces[
+				"magna_grecia"
+			];
 
+		if (province)
+		{
+			warn(
+				"MAGNA GRECIA COASTAL = " +
+				province.isCoastal()
+			);
+		}
 		for (const prov in data.provinces)
 			this.provinces[prov].Deserialize(data.provinces[prov]);
 
@@ -145,11 +161,27 @@ class GameData
 		for (const code in this.tribes)
 		{
 			const tribe = this.tribes[code];
+
 			if (!tribe.data.startProvinces)
 				continue;
+
 			for (const prov of tribe.data.startProvinces)
-				if (prov !== playerData.startProvince)
-					this.provinces[prov].setOwner(code);
+			{
+				if (prov === playerData.startProvince)
+					continue;
+
+				if (!this.provinces[prov])
+				{
+					warn(
+						"Province not found: " +
+						prov
+					);
+					continue;
+				}
+
+				this.provinces[prov]
+					.setOwner(code);
+			}
 		}
  
 		this.difficulty = difficulty;
@@ -159,21 +191,21 @@ class GameData
 
 	parseHistory()
 	{
-		let files = Engine.ListDirectoryFiles("campaigns/grand_strategy/provinces/", "**.json", false);
-		for (let i = 0; i < files.length; ++i)
+		for (let feature of this.geo.data.features)
 		{
-			let file = files[i];
-			let data = Engine.ReadJSONFile(file);
+			let code =
+				feature.properties.code;
 
-			if (!data)
-			{
-				error("DATA IS NULL");
-				continue;
-			}
-			this.provinces[data.code] = new Province(data);
+			this.provinces[code] =
+				new Province(feature);
 		}
 
-		files = Engine.ListDirectoryFiles("campaigns/grand_strategy/tribes/", "**.json", false);
+		let files =
+		Engine.ListDirectoryFiles(
+			"campaigns/grand_strategy/tribes/",
+			"**.json",
+			false
+		);
 		for (let i = 0; i < files.length; ++i)
 		{
 			let file = files[i];
@@ -203,7 +235,7 @@ class GameData
 		{
 			let province = this.provinces[provinceCode];
 
-			if (province.data.provinceType === "sea")
+			if (province.isSea())
 			{
 				warn("Cannot attack sea provinces");
 				return;

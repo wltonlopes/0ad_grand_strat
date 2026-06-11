@@ -1,22 +1,66 @@
+// class Province
+// {
+// 	constructor(data)
+// 	{
+// 		this.code = data.code;
+// 		this.data = data;
 class Province
 {
 	constructor(data)
 	{
-		this.code = data.code;
-		this.data = data;
+		if (data.properties)
+		{
+			// GeoJSON Feature
+			this.code = data.properties.code;
+			this.data = data.properties;
+		}
+		else
+		{
+			// JSON antigo
+			this.code = data.code;
+			this.data = data;
+		}
+
+		// let path =
+		// 	"campaigns/grand_strategy/gfxdata/" +
+		// 	this.code +
+		// 	".json";
+
+		// this.gfxdata = Engine.ReadJSONFile(path);
 
 		let path =
 			"campaigns/grand_strategy/gfxdata/" +
 			this.code +
 			".json";
-		this.gfxdata = Engine.ReadJSONFile(path);
+
+		this.gfxdata =
+			Engine.ReadJSONFile(path);
+
 		if (!this.gfxdata)
-			this.gfxdata = { "size": [0, 0, 100, 100]};
+		{
+			this.gfxdata =
+			{
+				"size":
+				[
+					0,
+					0,
+					100,
+					100
+				]
+			};
+
+			warn(
+				"No gfxdata for " +
+				this.code
+			);
+		}
+		this.gfxdata = {
+			"size": [0, 0, 4096, 2048]
+		};
+
 		this.icon = undefined;
 		this.ownerTribe = undefined;
 		this.name = this.data.name;
-
-		// Indicative of the defensive strength should an attack occur. Also costs money.
 		this.garrison = 0;
 	}
 
@@ -44,31 +88,34 @@ class Province
 	getColor()
 	{
 		if (this.ownerTribe)
-		{
 			return g_GameData.tribes[this.ownerTribe].color.split(" ");
-		}
-		const r = Math.floor(this.data.hash / 1000000);
-		const g = Math.floor((this.data.hash - r * 1000000) / 1000);
-		const b = Math.floor((this.data.hash - r * 1000000 - g * 1000));
-		return [r, g, b];
+
+		if (this.data.color)
+			return this.data.color.split(" ");
+
+		return [150, 150, 150];
 	}
 
 	getHeroPos()
 	{
-		if (this.data.centerpoint)
-			return clone(this.data.centerpoint);
-		return [(this.gfxdata.size[2] + this.gfxdata.size[0]) / 2,
-			(this.gfxdata.size[3] + this.gfxdata.size[1]) / 2];
+		return this.getCenterPoint();
 	}
 
 	getLinks()
 	{
-		return this.data.links || [];
+		if (this.data.links)
+			return this.data.links;
+
+		return g_GameData.geo
+			.getNeighbours(
+				this.code
+			);
 	}
 
 	getNativeCivs()
 	{
-		return this.data.civs ?? ["random"];
+		return this.data.civs ??
+			["random"];
 	}
 
 	getInfoLevel(tribe)
@@ -114,6 +161,62 @@ class Province
 	// TODO: A*
 	canTravel(code)
 	{
-		return this.data?.links?.indexOf(code) !== -1;
+		return this.getLinks().indexOf(code) !== -1;
+	}
+
+	getCenterPoint()
+	{
+		if (this.data.centerpoint)
+			return this.data.centerpoint;
+
+		let center =
+			g_GameData.geo
+				.getPixelCenter(
+					this.code
+				);
+
+		return [
+			center.x,
+			center.y
+		];
+	}
+
+	isCoastal()
+	{
+		for (let neighbour of this.getLinks())
+		{
+			let province =
+				g_GameData.provinces[
+					neighbour
+				];
+
+			if (
+				province &&
+				province.data.provinceType ==
+				"sea"
+			)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+	isSea()
+	{
+		return this.data.provinceType ==
+			"sea";
+	}
+	isLand()
+	{
+		return this.data.provinceType !=
+			"sea";
+	}
+	getBounds()
+	{
+		return g_GameData.geo
+			.getPixelBounds(
+				this.code
+			);
 	}
 }

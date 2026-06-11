@@ -261,7 +261,7 @@ class CampaignMenu
 				province.icon.z = province.data.provinceType == "sea" ? 1 : 10;
 				province.icon.mouse_event_mask ="texture:campaigns/grand_strategy/provinces/" + province.code + ".png";
 			}
-			province.icon.size = this.toGUISize(...province.gfxdata.size);
+            province.icon.size =this.toGUISize(...province.getBounds());
 			if (!province.gfxdata || !province.gfxdata.size)
 				{
 					warn("NO GFXDATA FOR " + province.code);
@@ -287,7 +287,13 @@ class CampaignMenu
 				isNaN(color[1]) ||
 				isNaN(color[2])
 			)
-			color.push(province.ownerTribe ? 70 : 30);
+			{
+				color = [150, 150, 150];
+			}
+
+			color.push(
+				province.ownerTribe ? 70 : 30
+			);
 			if (!inLos)
 			{
 				color[0] = Math.round(color[0] * 0.33);
