@@ -19,6 +19,12 @@
 		sprite="stretched:campaigns/grand_strategy/art/world_map.png"
 		size="0 0 100% 100%"
 	/>
+	<object
+		name="campaignBaseMap"
+		z="1"
+		type="image"
+		sprite="stretched:campaigns/grand_strategy/art/campaign_map.png"
+	/>
 		<!-- Computing Turn -->
 		<object name="computingTurn" hidden="true"
 			z="500" type="image" size="0 0 100% 100%" sprite="panelShader">

@@ -31,6 +31,12 @@ class CampaignMenu
 		this.cameraZ = 0;
 
 		this.lastRender = Date.now();
+
+		this.baseMap =
+			Engine.GetGUIObjectByName(
+				"campaignBaseMap"
+			);
+
 	}
 
 	initialise()
@@ -226,6 +232,17 @@ class CampaignMenu
 
 	render()
 	{
+		let map =
+		Engine.GetGUIObjectByName(
+			"campaignBaseMap"
+		);
+		this.baseMap.size =
+		this.toGUISize(
+			0,
+			0,
+			4096,
+			2048
+		);
 		Engine.GetGUIObjectByName("topPanelText").caption = `` +
 		`Turn ${g_GameData.turn}` +
 		` Tribe "${g_GameData.playerTribe}"` +
@@ -261,20 +278,7 @@ class CampaignMenu
 				province.icon.z = province.data.provinceType == "sea" ? 1 : 10;
 				province.icon.mouse_event_mask ="texture:campaigns/grand_strategy/provinces/" + province.code + ".png";
 			}
-			warn(
-					"CAMERA = " +
-					uneval({
-						x: this.cameraX,
-						z: this.cameraZ
-					})
-				);
-			warn(
-					province.code +
-					" GUI = " +
-					this.toGUISize(
-						...province.getBounds()
-					)
-				);
+
 			let pos = province.getPosition();
 
 			province.icon.size =
@@ -299,14 +303,14 @@ class CampaignMenu
 
 			let b = province.getBounds();
 
-			warn(province.code + " POS = " + uneval({
-				x0: b[0],
-				y0: b[1],
-				x1: b[2],
-				y1: b[3],
-				w: b[2] - b[0],
-				h: b[3] - b[1]
-			}));
+			// warn(province.code + " POS = " + uneval({
+			// 	x0: b[0],
+			// 	y0: b[1],
+			// 	x1: b[2],
+			// 	y1: b[3],
+			// 	w: b[2] - b[0],
+			// 	h: b[3] - b[1]
+			// }));
 			const cityIcon = Engine.GetGUIObjectByName(province.icon.name.replace("Sprite", "City"));
 			if (province.ownerTribe)
 			{

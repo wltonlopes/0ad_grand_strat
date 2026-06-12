@@ -21,13 +21,6 @@ class Province
 			this.data = data;
 		}
 
-		// let path =
-		// 	"campaigns/grand_strategy/gfxdata/" +
-		// 	this.code +
-		// 	".json";
-
-		// this.gfxdata = Engine.ReadJSONFile(path);
-
 		this.gfxdata = {"size": [0,0,4096,2048]};
 		// let path =
 		// 	"campaigns/grand_strategy/gfxdata/" +
@@ -97,8 +90,28 @@ class Province
 		return [150, 150, 150];
 	}
 
+	getCenterPoint()
+	{
+		let center =
+			g_GameData.geo.getPixelCenter(
+				this.code
+			);
+
+		return [
+			center.x,
+			center.y
+		];
+	}
 	getHeroPos()
 	{
+		if (this.data.heroPos)
+		{
+			return [
+				this.data.heroPos.x,
+				this.data.heroPos.y
+			];
+		}
+
 		return this.getCenterPoint();
 	}
 
@@ -181,7 +194,7 @@ class Province
 			center.y
 		];
 	}
-	
+
 	getPosition()
 	{
 		if (this.data.position)
@@ -237,12 +250,6 @@ class Province
 			g_GameData.geo.getPixelBounds(
 				this.code
 			);
-
-		warn(
-			this.code +
-			" BOUNDS = " +
-			uneval(bounds)
-		);
 
 		return bounds;
 	}

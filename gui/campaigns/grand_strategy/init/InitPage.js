@@ -102,13 +102,31 @@ class InitPage
 	{
 		if (this.provinceSelect.selected === -1 || !this.customProvince)
 		{
-			// this.provinceSelect.selected = this.getDefaultStartingProvince(this.civSelect.list_data[this.civSelect.selected]);
-		if (!this.heroName.caption || !this.customHeroName)
-			this.heroName.caption = pickRandom(this.civs[this.civSelect.list_data[this.civSelect.selected]].AINames);
-		if (!this.tribeName.caption || !this.customTribeName)
-			this.tribeName.caption = this.civSelect.list[this.civSelect.selected];
+			this.provinceSelect.selected =
+				this.getDefaultStartingProvince(
+					this.civSelect.list_data[
+						this.civSelect.selected
+					]
+				);
+
+			this.customProvince = false;
 		}
 
+		if (!this.heroName.caption || !this.customHeroName)
+			this.heroName.caption =
+				pickRandom(
+					this.civs[
+						this.civSelect.list_data[
+							this.civSelect.selected
+						]
+					].AINames
+				);
+
+		if (!this.tribeName.caption || !this.customTribeName)
+			this.tribeName.caption =
+				this.civSelect.list[
+					this.civSelect.selected
+				];
 	}
 
 	render()
@@ -205,10 +223,10 @@ onStartRequest()
 	// 		"spart": "peloponnese",
 	// 		}[code]);
 	// 	}
-		getDefaultStartingProvince(code)
-		{
-			return 0;
-		}
+	getDefaultStartingProvince(code)
+	{
+		return 0;
+	}
 	}
 
 		function init()

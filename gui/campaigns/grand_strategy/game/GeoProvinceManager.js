@@ -8,37 +8,7 @@ class GeoProvinceManager
 			);
 		this.neighbourCache = {};
 		this.boundsCache = {};
-        // this.buildBoundsCache();
 
-		this.buildNeighbourCache();
-		warn(
-			"NAPOLES CENTER = " +
-			uneval(
-				this.getPixelCenter(
-					"napoles"
-				)
-			)
-		);
-
-		warn(
-			"ITALIAN CENTER = " +
-			uneval(
-				this.getPixelCenter(
-					"italian"
-				)
-			)
-		);
-			warn(
-			"WORLD BOUNDS = " +
-			uneval(
-				this.getBounds()
-			)
-		);
-		// warn(
-		// 	code +
-		// 	" = " +
-		// 	uneval(this.boundsCache[code])
-		// );
 	}
 
 	getProvince(code)

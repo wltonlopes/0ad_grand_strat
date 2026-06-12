@@ -11,6 +11,8 @@ class GameData
 		this.provinces = {};
 		this.tribes = {};
 		// TESTE GEOJSON
+		this.data =Engine.ReadJSONFile("campaigns/grand_strategy/data/provinces.geojson");
+		this.neighbourCache = {};
 
 		//
 		this.difficulty = "medium";
@@ -170,10 +172,10 @@ class GameData
 
 				if (!this.provinces[prov])
 				{
-					warn(
-						"Province not found: " +
-						prov
-					);
+					// warn(
+					// 	"Province not found: " +
+					// 	prov
+					// );
 					continue;
 				}
 
