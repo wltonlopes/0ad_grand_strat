@@ -28,32 +28,33 @@ class Province
 
 		// this.gfxdata = Engine.ReadJSONFile(path);
 
-		let path =
-			"campaigns/grand_strategy/gfxdata/" +
-			this.code +
-			".json";
+		this.gfxdata = {"size": [0,0,4096,2048]};
+		// let path =
+		// 	"campaigns/grand_strategy/gfxdata/" +
+		// 	this.code +
+		// 	".json";
 
-		this.gfxdata =
-			Engine.ReadJSONFile(path);
+		// this.gfxdata =
+		// 	Engine.ReadJSONFile(path);
 
-		if (!this.gfxdata)
-		{
-			this.gfxdata =
-			{
-				"size":
-				[
-					0,
-					0,
-					100,
-					100
-				]
-			};
+		// if (!this.gfxdata)
+		// {
+		// 	this.gfxdata =
+		// 	{
+		// 		"size":
+		// 		[
+		// 			0,
+		// 			0,
+		// 			100,
+		// 			100
+		// 		]
+		// 	};
 
-			warn(
-				"No gfxdata for " +
-				this.code
-			);
-		}
+		// 	warn(
+		// 		"No gfxdata for " +
+		// 		this.code
+		// 	);
+		// }
 		this.gfxdata = {
 			"size": [0, 0, 4096, 2048]
 		};
@@ -180,6 +181,24 @@ class Province
 			center.y
 		];
 	}
+	
+	getPosition()
+	{
+		if (this.data.position)
+		{
+			return [
+				this.data.position.x,
+				this.data.position.y
+			];
+		}
+
+		let bounds = this.getBounds();
+
+		return [
+			bounds[0],
+			bounds[1]
+		];
+	}
 
 	isCoastal()
 	{
@@ -214,9 +233,17 @@ class Province
 	}
 	getBounds()
 	{
-		return g_GameData.geo
-			.getPixelBounds(
+		let bounds =
+			g_GameData.geo.getPixelBounds(
 				this.code
 			);
+
+		warn(
+			this.code +
+			" BOUNDS = " +
+			uneval(bounds)
+		);
+
+		return bounds;
 	}
 }

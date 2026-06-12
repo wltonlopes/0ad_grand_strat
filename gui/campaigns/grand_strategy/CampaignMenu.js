@@ -261,12 +261,52 @@ class CampaignMenu
 				province.icon.z = province.data.provinceType == "sea" ? 1 : 10;
 				province.icon.mouse_event_mask ="texture:campaigns/grand_strategy/provinces/" + province.code + ".png";
 			}
-            province.icon.size =this.toGUISize(...province.getBounds());
-			if (!province.gfxdata || !province.gfxdata.size)
-				{
-					warn("NO GFXDATA FOR " + province.code);
-					continue;
-				}
+			warn(
+					"CAMERA = " +
+					uneval({
+						x: this.cameraX,
+						z: this.cameraZ
+					})
+				);
+			warn(
+					province.code +
+					" GUI = " +
+					this.toGUISize(
+						...province.getBounds()
+					)
+				);
+			let pos = province.getPosition();
+
+			province.icon.size =
+				this.toGUISize(
+					pos[0],
+					pos[1],
+					pos[0] + 1024,
+					pos[1] + 1024
+				);
+			// let bounds = province.getBounds();
+
+			// let content =
+			// 	province.data.maskContentBounds;
+
+			// let scaleX =
+			// 	(bounds[2] - bounds[0]) /
+			// 	(content[2] - content[0]);
+
+			// let scaleY =
+			// 	(bounds[3] - bounds[1]) /
+			// 	(content[3] - content[1]);
+
+			let b = province.getBounds();
+
+			warn(province.code + " POS = " + uneval({
+				x0: b[0],
+				y0: b[1],
+				x1: b[2],
+				y1: b[3],
+				w: b[2] - b[0],
+				h: b[3] - b[1]
+			}));
 			const cityIcon = Engine.GetGUIObjectByName(province.icon.name.replace("Sprite", "City"));
 			if (province.ownerTribe)
 			{
@@ -304,7 +344,7 @@ class CampaignMenu
 			if (province.code === this.selectedProvince)
 				color[3] = 100;
 			let colorString = color.join(" ");
-			let sprite =`color:${colorString}:textureAsMask:stretched:campaigns/grand_strategy/provinces/${province.code}.png`;
+			let sprite =`color:${colorString}:textureAsMask:campaigns/grand_strategy/provinces/${province.code}.png`;
 			province.icon.sprite = sprite;
 		}
 

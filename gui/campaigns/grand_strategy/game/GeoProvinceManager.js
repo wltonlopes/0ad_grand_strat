@@ -7,8 +7,38 @@ class GeoProvinceManager
 				"campaigns/grand_strategy/data/provinces.geojson"
 			);
 		this.neighbourCache = {};
+		this.boundsCache = {};
+        // this.buildBoundsCache();
 
 		this.buildNeighbourCache();
+		warn(
+			"NAPOLES CENTER = " +
+			uneval(
+				this.getPixelCenter(
+					"napoles"
+				)
+			)
+		);
+
+		warn(
+			"ITALIAN CENTER = " +
+			uneval(
+				this.getPixelCenter(
+					"italian"
+				)
+			)
+		);
+			warn(
+			"WORLD BOUNDS = " +
+			uneval(
+				this.getBounds()
+			)
+		);
+		// warn(
+		// 	code +
+		// 	" = " +
+		// 	uneval(this.boundsCache[code])
+		// );
 	}
 
 	getProvince(code)
@@ -41,33 +71,82 @@ class GeoProvinceManager
 			"y": y / coords.length
 		};
 	}
-	getBounds()
+	buildBoundsCache()
 	{
-		let minX = Infinity;
-		let maxX = -Infinity;
-		let minY = Infinity;
-		let maxY = -Infinity;
+		let worldBounds =
+			this.getBounds();
 
 		for (let feature of this.data.features)
 		{
-			let coords =
+			let code =
+				feature.properties.code;
+
+			let polygon =
 				feature.geometry.coordinates[0];
 
-			for (let point of coords)
+			let minX = Infinity;
+			let minY = Infinity;
+			let maxX = -Infinity;
+			let maxY = -Infinity;
+
+			for (let point of polygon)
 			{
 				minX = Math.min(minX, point[0]);
-				maxX = Math.max(maxX, point[0]);
-
 				minY = Math.min(minY, point[1]);
+
+				maxX = Math.max(maxX, point[0]);
 				maxY = Math.max(maxY, point[1]);
 			}
-		}
 
+			let px0 =
+				(minX - worldBounds.minX) /
+				(worldBounds.maxX - worldBounds.minX) *
+				4096;
+
+			let px1 =
+				(maxX - worldBounds.minX) /
+				(worldBounds.maxX - worldBounds.minX) *
+				4096;
+
+			let py0 =
+				2048 -
+				(
+					(minY - worldBounds.minY) /
+					(worldBounds.maxY - worldBounds.minY)
+					* 2048
+				);
+
+			let py1 =
+				2048 -
+				(
+					(maxY - worldBounds.minY) /
+					(worldBounds.maxY - worldBounds.minY)
+					* 2048
+				);
+			// let py1 =
+			// 	2048 -
+			// 	(
+			// 		(maxY - worldBounds.minY) /
+			// 		(worldBounds.maxY - worldBounds.minY)
+			// 		* 2048
+			// 	);
+
+			this.boundsCache[code] = [
+				Math.round(px0),
+				Math.round(py1),
+				Math.round(px1),
+				Math.round(py0)
+			];
+		}
+	}
+
+	getBounds()
+	{
 		return {
-			minX,
-			maxX,
-			minY,
-			maxY
+			minX: 0,
+			maxX: 4096,
+			minY: -2048,
+			maxY: 0
 		};
 	}
 	pointInPolygon(x, y, polygon)
@@ -262,20 +341,8 @@ class GeoProvinceManager
 	}
 	getPixelCenter(code)
 	{
-		let p =
-			this.getCenterPercent(code);
-
-		if (!p)
-			return null;
-
-		return {
-			x: Math.round(p.x * 4096),
-			y: Math.round(p.y * 2048)
-		};
-	}
-	getPixelBounds(code)
-	{
-		let province = this.getProvince(code);
+		let province =
+			this.getProvince(code);
 
 		if (!province)
 			return null;
@@ -297,11 +364,62 @@ class GeoProvinceManager
 			maxY = Math.max(maxY, point[1]);
 		}
 
+		return {
+			x: Math.round(
+				(minX + maxX) / 2
+			),
+
+			y: Math.round(
+				-(minY + maxY) / 2
+			)
+		};
+	}
+	
+	getPixelBounds(code)
+	{
+		let province = this.getProvince(code);
+
+		let polygon =
+			province.geometry.coordinates[0];
+
+		let minX = Infinity;
+		let minY = Infinity;
+		let maxX = -Infinity;
+		let maxY = -Infinity;
+
+		for (let p of polygon)
+		{
+			minX = Math.min(minX, p[0]);
+			minY = Math.min(minY, p[1]);
+
+			maxX = Math.max(maxX, p[0]);
+			maxY = Math.max(maxY, p[1]);
+		}
+
 		return [
-			minX,
-			minY,
-			maxX,
-			maxY
+			Math.round(minX),
+			Math.round(-maxY),
+			Math.round(maxX),
+			Math.round(-minY)
 		];
+	}
+	// getPixelBounds(code)
+	// {
+	// 	let center =
+	// 		this.getPixelCenter(code);
+
+	// 	if (!center)
+	// 		return null;
+
+	// 	return [
+	// 		center.x - 256,
+	// 		center.y - 256,
+	// 		center.x + 256,
+	// 		center.y + 256
+	// 	];
+	// }
+	getMaskSize()
+	{
+		return 512;
 	}
 }
