@@ -128,8 +128,13 @@ class Province
 
 	getNativeCivs()
 	{
-		return this.data.civs ??
-			["random"];
+		if (!this.data.civs)
+			return ["random"];
+
+		if (typeof this.data.civs === "string")
+			return [this.data.civs];
+
+		return this.data.civs;
 	}
 
 	getInfoLevel(tribe)
@@ -145,20 +150,18 @@ class Province
 		return 0;
 	}
 
-	// Game
 	setOwner(tribe)
-		{
-			if (this.data.provinceType === "sea")
-				return;
-	// setOwner(tribe)
-	// {
-	// 	if (tribe !== this.ownerTribe)
-		{
-			if (this.ownerTribe)
-				g_GameData.tribes[this.ownerTribe].LoseControl(this.code);
-			this.ownerTribe = tribe;
-			g_GameData.tribes[this.ownerTribe].GainControl(this.code);
-		}
+	{
+		if (this.isSea())
+			return;
+
+		if (this.ownerTribe)
+			g_GameData.tribes[this.ownerTribe].LoseControl(this.code);
+
+		this.ownerTribe = tribe;
+
+		if (tribe && g_GameData.tribes[tribe])
+			g_GameData.tribes[tribe].GainControl(this.code);
 	}
 
 	// getBalance()

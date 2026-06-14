@@ -261,8 +261,27 @@ class GameData
 				"playerIsAttacker": playerIsAttacker,
 			}
 		};
+		warn("ATTACKER = " + attackerTribe);
+		warn("OWNER = " + province.ownerTribe);
+
+		warn(
+			"ATTACKER TRIBE = " +
+			uneval(this.tribes[attackerTribe])
+		);
+
+		warn(
+			"OWNER TRIBE = " +
+			uneval(this.tribes[province.ownerTribe])
+		);
 		let gameSettings = new GameSettings().init();
+
+		warn("GAME SETTINGS = " + uneval(gameSettings));
+
 		gameSettings.fromInitAttributes(settings);
+
+		warn("PLAYER COUNT OBJ = " + uneval(gameSettings.playerCount));
+		warn("PLAYER AI OBJ = " + uneval(gameSettings.playerAI));
+		warn("PLAYER CIV OBJ = " + uneval(gameSettings.playerCiv));
 		// TODO: pass translated name, description, preview.
 		// gameSettings.mapName.set(`${this.tribes[attackerTribe].data.name} attack on ${province.name}`);
 		
@@ -287,13 +306,35 @@ class GameData
 		}
 
 		gameSettings.playerCount.setNb(2);
-		// TODO: make all this more generic.
+
 		let aiID = 1 - playerID;
+
+		if (!gameSettings.playerAI)
+		{
+			error("playerAI is null");
+			return;
+		}
+		//
+		warn("PROVINCE = " + uneval(province));
+		warn("GARRISON = " + province.garrison);
+		warn("PLAYER IS ATTACKER = " + playerIsAttacker);
+		//
 		gameSettings.playerAI.set(aiID, {
 			"bot": "petra",
-			"difficulty": this.getAIDifficulty(province.garrison, playerIsAttacker),
+			"difficulty": this.getAIDifficulty(
+				province.garrison,
+				playerIsAttacker
+			),
 			"behavior": "random",
 		});
+		warn("TARGET PROVINCE = " + province.code);
+		warn("OWNER CODE = " + province.ownerTribe);
+		warn("OWNER OBJECT = " + uneval(this.tribes[province.ownerTribe]));
+		warn(
+			"NATIVE CIVS = " +
+			uneval(province.getNativeCivs())
+		);
+
 		gameSettings.playerCiv.setValue(0, this.tribes[attackerTribe].civ);
 		if (province.ownerTribe)
 			gameSettings.playerCiv.setValue(1, this.tribes[province.ownerTribe].civ);
@@ -302,7 +343,21 @@ class GameData
 			// TODO: support random options.
 			gameSettings.playerCiv.setValue(1, pickRandom(province.getNativeCivs()));
 		}
+		///
+		warn(
+			"P1 CIV = " +
+			this.tribes[attackerTribe].civ
+		);
 
+		warn(
+			"P2 CIV = " +
+			(
+				province.ownerTribe ?
+				this.tribes[province.ownerTribe].civ :
+				pickRandom(province.getNativeCivs())
+			)
+		);
+		//
 		let assignments = {
 			"local": {
 				"player": playerID + 1,
