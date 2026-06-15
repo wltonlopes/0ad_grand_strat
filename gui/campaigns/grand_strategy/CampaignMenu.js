@@ -31,7 +31,7 @@ class CampaignMenu
 		this.cameraZ = 0;
 
 		this.lastRender = Date.now();
-
+		this.zoom = 2.0; // 200%
 		this.baseMap =
 			Engine.GetGUIObjectByName(
 				"campaignBaseMap"
@@ -90,8 +90,15 @@ class CampaignMenu
 	centerScrollOnHero()
 	{
 		const pos = g_GameData.provinces[g_GameData.playerHero.location].getHeroPos();
-		this.cameraX = pos[0] - this.window.getComputedSize().right/2;
-		this.cameraZ = pos[1] - this.window.getComputedSize().bottom/2;
+		this.cameraX =
+			pos[0] -
+			this.window.getComputedSize().right /
+			(2 * this.zoom);
+
+		this.cameraZ =
+			pos[1] -
+			this.window.getComputedSize().bottom /
+			(2 * this.zoom);
 	}
 
 	/**
@@ -305,7 +312,10 @@ class CampaignMenu
 			return;
 		}
 		this.selectedProvince = code;
-		const pos = [this.mouseX+this.cameraX, this.mouseY+this.cameraZ];
+		const pos = [
+			this.mouseX / this.zoom + this.cameraX,
+			this.mouseY / this.zoom + this.cameraZ
+		];
 		Engine.GetGUIObjectByName("contextPanel").size = this.toGUISize(...pos, pos[0] + 250, pos[1] + 200);
 		Engine.GetGUIObjectByName("contextPanel").hidden = false;
 
@@ -550,7 +560,7 @@ class CampaignMenu
 		Engine.GetGUIObjectByName("finishTurn").enabled = !didRenderEvent && g_GameData?.canAdvanceTurn();
 
 		const delta = Date.now() - this.lastRender;
-		const SCROLL_SPEED = delta * 0.6;
+		const SCROLL_SPEED = delta * 0.6 / this.zoom;
 		if (this.mouseX < 10)
 			this.cameraX -= SCROLL_SPEED;
 		else if (this.mouseX >= this.window.getComputedSize().right - 10)
@@ -581,11 +591,22 @@ class CampaignMenu
 			pos[1] + size[1]
 		];
 	}
-
 	toGUISize(x0, z0, x1, z1)
 	{
-		return `${Math.round(x0 - this.cameraX)} ${Math.round(z0 - this.cameraZ)} ${Math.round(x1 - this.cameraX)} ${Math.round(z1 - this.cameraZ)}`;
+		return `${
+			Math.round((x0 - this.cameraX) * this.zoom)
+		} ${
+			Math.round((z0 - this.cameraZ) * this.zoom)
+		} ${
+			Math.round((x1 - this.cameraX) * this.zoom)
+		} ${
+			Math.round((z1 - this.cameraZ) * this.zoom)
+		}`;
 	}
+	// toGUISize(x0, z0, x1, z1)
+	// {
+	// 	return `${Math.round(x0 - this.cameraX)} ${Math.round(z0 - this.cameraZ)} ${Math.round(x1 - this.cameraX)} ${Math.round(z1 - this.cameraZ)}`;
+	// }
 }
 
 function handleInputAfterGui(ev, hoveredObject)
