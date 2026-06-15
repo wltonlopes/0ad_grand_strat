@@ -3,29 +3,64 @@
  */
 class Hero
 {
+	// constructor(tribe, province)
+	// {
+	// 	this.tribe = tribe;
+	// 	this.location = province;
+	// 	this.actionsLeft = 1;
+	// }
 	constructor(tribe, province)
 	{
+		this.id = Date.now() + Math.random();
+
 		this.tribe = tribe;
 		this.location = province;
 		this.actionsLeft = 1;
-	}
 
+		this.army = {
+			spearmen: 0,
+			swordsmen: 0,
+			archers: 0,
+			cavalry: 0
+		};
+	}
+	// Serialize()
+	// {
+	// 	return {
+	// 		"tribe": this.tribe,
+	// 		"loc": this.location,
+	// 		"moves": this.actionsLeft
+	// 	};
+	// }
 	Serialize()
 	{
 		return {
+			"id": this.id,
 			"tribe": this.tribe,
 			"loc": this.location,
-			"moves": this.actionsLeft
+			"moves": this.actionsLeft,
+			"army": this.army
 		};
 	}
-
+	// Deserialize(data)
+	// {
+	// 	this.tribe = data.tribe;
+	// 	this.location = data.loc;
+	// 	this.actionsLeft = data.moves;
+	// }
 	Deserialize(data)
 	{
+		this.id = data.id;
 		this.tribe = data.tribe;
 		this.location = data.loc;
 		this.actionsLeft = data.moves;
+		this.army = data.army || {
+			spearmen: 0,
+			swordsmen: 0,
+			archers: 0,
+			cavalry: 0
+		};
 	}
-
 	ownsProvince(code)
 	{
 		return g_GameData.provinces[code].ownerTribe === this.tribe;

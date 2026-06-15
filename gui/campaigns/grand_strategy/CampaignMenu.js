@@ -105,33 +105,147 @@ class CampaignMenu
 
 	displayProvinceDetails()
 	{
-		if (this.selectedProvince === -1 || !Engine.GetGUIObjectByName("tribeDetails").hidden)
+		if (this.selectedProvince === -1 ||
+			!Engine.GetGUIObjectByName("tribeDetails").hidden)
 		{
-			Engine.GetGUIObjectByName("provinceDetails").hidden = true;
+			Engine.GetGUIObjectByName(
+				"provinceDetails"
+			).hidden = true;
 			return;
 		}
-		const province = g_GameData.provinces[this.selectedProvince];
-		const infoLevel = province.getInfoLevel(g_GameData.playerTribe);
 
-		Engine.GetGUIObjectByName("provinceDetails").hidden = false;
-		let str = `Name: ${province.name}\n` +
-		`Owner: ${g_GameData.tribes?.[province.ownerTribe]?.getName() || "No-one"}\n`;
+		const province =
+			g_GameData.provinces[
+				this.selectedProvince
+			];
+
+		const tribe =
+			g_GameData.tribes[
+				g_GameData.playerTribe
+			];
+
+		const infoLevel =
+			province.getInfoLevel(
+				g_GameData.playerTribe
+			);
+
+		Engine.GetGUIObjectByName(
+			"provinceDetails"
+		).hidden = false;
+
+		let str =
+			`Name: ${province.name}\n` +
+			`Owner: ${
+				g_GameData.tribes?.[
+					province.ownerTribe
+				]?.getName()
+				|| "No-one"
+			}\n`;
+
 		if (infoLevel >= 1)
-			str += `Garrison strength: ${province.garrison}\n`;
+			str +=
+				`Garrison strength: ${
+					province.garrison
+				}\n`;
+
 		if (infoLevel >= 2)
-			str += `Balance: ${province.getBalance()}\n`;
-		str += `\n\n` + coloredText("Right-click the province to make actions", "green");
-		Engine.GetGUIObjectByName("provinceDetailsText").caption = str;
+			str +=
+				`Balance: ${
+					province.getBalance()
+				}\n`;
+
+		// Informações dos generais
+		str +=
+			`\nGenerals: ${
+				tribe.generals.length
+			}/${tribe.maxGenerals}\n`;
+
+		str +=
+			`\n\n` +
+			coloredText(
+				"Right-click the province to make actions",
+				"green"
+			);
+
+		Engine.GetGUIObjectByName(
+			"provinceDetailsText"
+		).caption = str;
+
+		// Botão do dono da província
+		const ownerBtn =
+			Engine.GetGUIObjectByName(
+				"provinceOwnerButton"
+			);
+
 		if (province.ownerTribe)
 		{
-			Engine.GetGUIObjectByName("provinceOwnerButton").onPress = () => this.displayTribeDetails(province.ownerTribe);
-			Engine.GetGUIObjectByName("provinceOwnerButton").sprite = "stretched:session/portraits/emblems/emblem_persians.png";
-			Engine.GetGUIObjectByName("provinceOwnerButton").enabled = true;
+			ownerBtn.enabled = true;
+
+			ownerBtn.onPress = () =>
+				this.displayTribeDetails(
+					province.ownerTribe
+				);
+
+			ownerBtn.sprite =
+				"stretched:session/portraits/emblems/emblem_persians.png";
 		}
 		else
 		{
-			Engine.GetGUIObjectByName("provinceOwnerButton").enabled = false;
-			Engine.GetGUIObjectByName("provinceOwnerButton").sprite = "grayscale:stretched:session/portraits/emblems/emblem_persians.png";
+			ownerBtn.enabled = false;
+
+			ownerBtn.sprite =
+				"grayscale:stretched:session/portraits/emblems/emblem_persians.png";
+		}
+
+		// ---------------------------
+		// Train General button
+		// ---------------------------
+
+		const trainBtn =
+			Engine.TryGetGUIObjectByName(
+				"trainGeneral"
+			);
+
+		if (!trainBtn)
+			return;
+
+		trainBtn.hidden = true;
+
+		const GENERAL_COST = 500;
+
+		if (
+			this.selectedProvince ===
+			tribe.getCapital()
+		)
+		{
+			trainBtn.hidden = false;
+
+			trainBtn.caption =
+				`Train General (${GENERAL_COST})`;
+
+			trainBtn.enabled =
+				tribe.money >= GENERAL_COST &&
+				tribe.generals.length <
+					tribe.maxGenerals;
+
+			trainBtn.onPress = () =>
+			{
+				let hero =
+					g_GameData.recruitGeneral(
+						g_GameData.playerTribe
+					);
+
+				if (!hero)
+					return;
+
+				g_GameData.playerHero =
+					hero;
+
+				g_GameData.save();
+
+				this.centerScrollOnHero();
+				this.render();
+			};
 		}
 	}
 
@@ -197,7 +311,8 @@ class CampaignMenu
 
 		// Move there button.
 		Engine.GetGUIObjectByName("contextPanelButton[0]").hidden = false;
-		Engine.GetGUIObjectByName("contextPanelButton[0]").enabled = g_GameData.playerHero.canMove(code) &&
+		Engine.GetGUIObjectByName("contextPanelButton[0]").enabled =
+			g_GameData.playerHero.canMove(code) &&
 			code !== g_GameData.playerHero.location;
 		Engine.GetGUIObjectByName("contextPanelButton[0]").onPress = () => {
 			g_GameData.playerHero.doMove(code);
@@ -254,12 +369,85 @@ class CampaignMenu
 		this.displayProvinceDetails();
 
 		// Update heros
-		const hero = g_GameData.playerHero;
-		const heroIcon = Engine.GetGUIObjectByName("heroButton");
-		const pos = g_GameData.provinces[hero.location].getHeroPos();
-		heroIcon.size = this.toGUISize(...this.centeredSizeAt([16, 16], pos));
+		const generals =
+			g_GameData.tribes[
+				g_GameData.playerTribe
+			].generals;
 
-		const los = g_GameData.provinces[hero.location].getLinks();
+		for (let i = 0; i < 10; ++i)
+		{
+			let icon =
+				Engine.GetGUIObjectByName(
+					`heroButton[${i}]`
+				);
+
+			icon.hidden = true;
+		}
+
+		for (let i = 0;
+			i < generals.length;
+			++i)
+		{
+			const hero = generals[i];
+
+			let icon =
+				Engine.GetGUIObjectByName(
+					`heroButton[${i}]`
+				);
+
+			if (!icon)
+				continue;
+
+			let pos =
+				g_GameData.provinces[
+					hero.location
+				].getHeroPos();
+
+			icon.hidden = false;
+
+			icon.size =
+				this.toGUISize(
+					...this.centeredSizeAt(
+						[16,16],
+						pos
+					)
+				);
+
+			icon.onPress = () =>
+			{
+				g_GameData.selectHero(
+					hero.id
+				);
+
+				this.centerScrollOnHero();
+			};
+
+			// destaque do general selecionado
+		if (hero === g_GameData.playerHero)
+			icon.sprite =
+				"stretched:session/portraits/units/gaul_hero_viridomarus.png";
+		else
+			icon.sprite =
+				"grayscale:stretched:session/portraits/units/gaul_hero_viridomarus.png";
+		}
+
+		const visible = new Set();
+
+		for (const hero of
+			g_GameData.tribes[
+				g_GameData.playerTribe
+			].generals)
+		{
+			visible.add(hero.location);
+
+			for (const p of
+				g_GameData.provinces[
+					hero.location
+				].getLinks())
+			{
+				visible.add(p);
+			}
+		}
 
 		// Update provinces
 		let i = 0;
@@ -321,7 +509,10 @@ class CampaignMenu
 			else
 				cityIcon.hidden = true;
 
-			const inLos = province.ownerTribe === hero.tribe || code == hero.location || los.indexOf(code) !== -1;
+			const inLos =
+			province.ownerTribe ===
+				g_GameData.playerTribe ||
+			visible.has(code);
 			let color = province.data.provinceType === "sea" ?
 				[255, 255, 255] :
 				province.getColor();

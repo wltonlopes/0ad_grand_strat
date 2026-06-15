@@ -50,7 +50,7 @@ class GameData
 		return {
 			"turn": this.turn,
 			"playerTribe": this.playerTribe,
-			"playerHero": this.playerHero.Serialize(),
+			"playerHeroID": this.playerHero?.id,
 			"difficulty": this.difficulty,
 			"tribes": tribes,
 			"provinces": pv,
@@ -87,8 +87,22 @@ class GameData
 		}
 
 		this.playerTribe = data.playerTribe;
-		this.playerHero = new Hero();
-		this.playerHero.Deserialize(data.playerHero);
+		if (data.playerHeroID)
+		{
+			this.playerHero =
+				this.tribes[this.playerTribe]
+					.generals.find(
+						g => g.id == data.playerHeroID
+					);
+		}
+
+		if (!this.playerHero &&
+			this.tribes[this.playerTribe].generals.length)
+		{
+			this.playerHero =
+				this.tribes[this.playerTribe]
+					.generals[0];
+		}
 
 		if (data.difficulty)
 			this.difficulty = data.difficulty;
@@ -156,6 +170,8 @@ class GameData
 		this.playerTribe = "player";
 		// TODO: hero name
 		this.playerHero = new Hero("player", playerData.startProvince);
+
+		this.tribes.player.generals.push(this.playerHero);
 
 		// Assign tribe initial provinces
 		for (const code in this.tribes)
@@ -513,7 +529,16 @@ class GameData
 			// End of turn, control will be returned to the player.
 			this.turn++;
 
-			this.playerHero.actionsLeft = Math.min(2, this.playerHero.actionsLeft + 1);
+		for (const tribeCode in this.tribes)
+		{
+			for (const general of
+				this.tribes[tribeCode].generals)
+			{
+				general.actionsLeft =
+					Math.min(2,
+						general.actionsLeft + 1);
+			}
+		}
 
 			this.pastTurnEvents.push(this.turnEvents);
 
@@ -563,5 +588,38 @@ class GameData
 				return false;
 		}
 		return true;
+	}
+
+	recruitGeneral(tribe)
+	{
+		const player = this.tribes[tribe];
+		const cost = 500;
+
+		if (player.money < cost)
+			return false;
+
+		if (player.generals.length >= player.maxGenerals)
+			return false;
+
+		player.money -= cost;
+
+		const capital = player.getCapital();
+
+		let hero = new Hero(tribe, capital);
+
+		player.generals.push(hero);
+
+		return hero;
+	}
+
+	selectHero(heroID)
+	{
+		const tribe =
+			this.tribes[this.playerTribe];
+
+		this.playerHero =
+			tribe.generals.find(
+				g => g.id == heroID
+			);
 	}
 }

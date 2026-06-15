@@ -8,6 +8,9 @@ class Tribe
 		this.code = data.code;
 		this.data = data;
 
+		this.generals = [];
+        this.maxGenerals = 2;
+
 		this.color = data.color || "255 0 0";
 
 		// Custom tribes don't have associated JSON data, so we need to serialize more.
@@ -29,10 +32,17 @@ class Tribe
 			"money": this.money,
 			"lastBalance": this.lastBalance || 0,
 			"civ": this.civ,
-			"diplo": Object.keys(this.diplo).map(x => [x, this.diplo[x].serialize()]),
+
+			"generals": this.generals.map(g => g.Serialize()),
+			"maxGenerals": this.maxGenerals,
+
+			"diplo": Object.keys(this.diplo)
+				.map(x => [x, this.diplo[x].serialize()]),
 		};
+
 		if (this.customTribeData)
 			ret.customTribeData = this.customTribeData;
+
 		return ret;
 	}
 
@@ -42,13 +52,27 @@ class Tribe
 		this.lastBalance = data.lastBalance;
 		this.civ = data.civ;
 
+		this.generals = [];
+		this.maxGenerals = data.maxGenerals || 1;
+
+		if (data.generals)
+		{
+			for (let generalData of data.generals)
+			{
+				let hero = new Hero();
+				hero.Deserialize(generalData);
+				this.generals.push(hero);
+			}
+		}
+
 		// TODO: do this better.
 		for (const prov in g_GameData.provinces)
 			if (g_GameData.provinces[prov].ownerTribe === this.code)
 				this.controlledProvinces.push(prov);
 
 		for (const [key, diplo] of data.diplo)
-			this.diplo[key] = new GSDiplomacy(this.code, key).deserialize(diplo);
+			this.diplo[key] =
+				new GSDiplomacy(this.code, key).deserialize(diplo);
 	}
 
 	getName()
@@ -92,4 +116,16 @@ class Tribe
 			this.diplo[target] = new GSDiplomacy(this.code, target);
 		return this.diplo[target];
 	}
+
+	getCapital()
+	{
+		if (this.capital)
+			return this.capital;
+
+		if (this.controlledProvinces.length)
+			return this.controlledProvinces[0];
+
+		return undefined;
+	}
+
 }
