@@ -33,7 +33,36 @@ with open(
     encoding="utf-8"
 ) as f:
     geo = json.load(f)
+    
+# --------------------------------------------------
+# Normalizar propriedades das províncias
+# --------------------------------------------------
 
+for feature in geo["features"]:
+
+    props = feature["properties"]
+
+    # civs: null -> []
+    if props.get("civs") is None:
+        props["civs"] = []
+
+    # civs: "rome" -> ["rome"]
+    elif isinstance(props["civs"], str):
+        if props["civs"].strip():
+            props["civs"] = [props["civs"]]
+        else:
+            props["civs"] = []
+
+    # mapTypes: null -> []
+    if props.get("mapTypes") is None:
+        props["mapTypes"] = []
+
+    # mapTypes: "coastal+temp" -> ["coastal+temp"]
+    elif isinstance(props["mapTypes"], str):
+        if props["mapTypes"].strip():
+            props["mapTypes"] = [props["mapTypes"]]
+        else:
+            props["mapTypes"] = []
 # --------------------------------------------------
 # Descobrir limites globais
 # --------------------------------------------------
