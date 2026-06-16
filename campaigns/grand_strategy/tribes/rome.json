@@ -1,0 +1,7 @@
+{
+	"code": "rome",
+	"name": "Rome",
+	"civ": "rome",
+	"color": "180 30 255",
+	"startProvinces": ["latium"]
+}

@@ -10,6 +10,9 @@ class GameData
 		this.turn = 0;
 		this.provinces = {};
 		this.tribes = {};
+
+	    this.armies = [];
+
 		// TESTE GEOJSON
 		this.data =Engine.ReadJSONFile("campaigns/grand_strategy/data/provinces.geojson");
 		this.neighbourCache = {};
@@ -38,6 +41,11 @@ class GameData
 		for (const prov in this.provinces)
 			pv[prov] = this.provinces[prov].Serialize();
 
+		const armies = [];
+
+		for (const army of this.armies)
+			armies.push(army.Serialize());
+
 		const pastEvents = [];
 		for (const evs of this.pastTurnEvents)
 		{
@@ -54,6 +62,7 @@ class GameData
 			"difficulty": this.difficulty,
 			"tribes": tribes,
 			"provinces": pv,
+			"armies": armies, // NOVO
 			"events": pastEvents,
 			"lastEventID": GSEvent.GetStartEventID(),
 		};
@@ -94,6 +103,20 @@ class GameData
 					.generals.find(
 						g => g.id == data.playerHeroID
 					);
+		}
+
+		this.armies = [];
+
+		if (data.armies)
+		{
+			for (const armyData of data.armies)
+			{
+				let army = Army.Deserialize(
+					armyData
+				);
+
+				this.armies.push(army);
+			}
 		}
 
 		if (!this.playerHero &&
@@ -173,6 +196,19 @@ class GameData
 
 		this.tribes.player.generals.push(this.playerHero);
 
+		let army =
+			new Army(
+				this.playerHero.id,
+				"player"
+			);
+
+		army.general =
+			this.playerHero.id;
+
+		army.province =
+			playerData.startProvince;
+
+		this.armies.push(army);
 		// Assign tribe initial provinces
 		for (const code in this.tribes)
 		{
@@ -201,6 +237,30 @@ class GameData
 		}
  
 		this.difficulty = difficulty;
+
+		// Criar um general inicial para cada IA
+		for (const tribeCode in this.tribes)
+		{
+			if (tribeCode == "player")
+				continue;
+
+			const tribe =
+				this.tribes[tribeCode];
+
+			// Só cria se a tribo possuir províncias
+			if (
+				!tribe.controlledProvinces ||
+				!tribe.controlledProvinces.length
+			)
+				continue;
+
+			// Dá dinheiro suficiente
+			tribe.money = 1000;
+
+			this.recruitGeneral(
+				tribeCode
+			);
+		}
 
 		this.save();
 	}
@@ -343,13 +403,13 @@ class GameData
 			),
 			"behavior": "random",
 		});
-		warn("TARGET PROVINCE = " + province.code);
-		warn("OWNER CODE = " + province.ownerTribe);
-		warn("OWNER OBJECT = " + uneval(this.tribes[province.ownerTribe]));
-		warn(
-			"NATIVE CIVS = " +
-			uneval(province.getNativeCivs())
-		);
+		// warn("TARGET PROVINCE = " + province.code);
+		// warn("OWNER CODE = " + province.ownerTribe);
+		// warn("OWNER OBJECT = " + uneval(this.tribes[province.ownerTribe]));
+		// warn(
+		// 	"NATIVE CIVS = " +
+		// 	uneval(province.getNativeCivs())
+		// );
 
 		gameSettings.playerCiv.setValue(0, this.tribes[attackerTribe].civ);
 		if (province.ownerTribe)
@@ -486,40 +546,87 @@ class GameData
 		}
 		else if (this.turnI === 1)
 		{
-			// Tribe '''AI''' - Invasions.
 			for (const code in this.tribes)
 			{
 				if (code === this.playerTribe)
 					continue;
-				const tribe = this.tribes[code];
-				const targets = new Set();
-				for (const prov of tribe.controlledProvinces)
+
+				const tribe =
+					this.tribes[code];
+
+				for (const hero of tribe.generals)
 				{
-					const pv = this.provinces[prov];
-					for (const pot of pv.getLinks())
-						if (this.provinces[pot].ownerTribe !== code)
-							if (tribe.canAttack(this.provinces[pot].ownerTribe))
-								targets.add(pot);
-				}
-				if (randBool(0.5) && targets.size)
-				{
-					const target = pickRandom(Array.from(targets));
-					const province = this.provinces[target];
-					if (province.ownerTribe === this.playerTribe)
+					if (hero.actionsLeft <= 0)
+						continue;
+
+					let current =
+						this.provinces[
+							hero.location
+						];
+
+					let targets = [];
+
+					for (const neighbour of
+						current.getLinks())
 					{
-						this.turnEvents.push(new GSAttack({
-							"attacker": code,
-							"target": target
-						}));
+						let province =
+							this.provinces[
+								neighbour
+							];
+
+						if (
+							province.ownerTribe !=
+							code
+						)
+						{
+							targets.push(
+								neighbour
+							);
+						}
+					}
+
+					if (!targets.length)
+						continue;
+
+					const target =
+						pickRandom(
+							targets
+						);
+
+					hero.location =
+						target;
+
+					hero.actionsLeft--;
+
+					const province =
+						this.provinces[
+							target
+						];
+
+					if (
+						province.ownerTribe ==
+						this.playerTribe
+					)
+					{
+						this.turnEvents.push(
+							new GSAttack({
+								"attacker": code,
+								"target": target
+							})
+						);
 					}
 					else
 					{
-						// TODO: simulate fighting.
-						province.setOwner(code);
-						this.turnEvents.push(new GSConquest({
-							"attacker": code,
-							"target": target
-						}));
+						province.setOwner(
+							code
+						);
+
+						this.turnEvents.push(
+							new GSConquest({
+								"attacker": code,
+								"target": target
+							})
+						);
 					}
 				}
 			}
@@ -537,6 +644,31 @@ class GameData
 				general.actionsLeft =
 					Math.min(2,
 						general.actionsLeft + 1);
+			}
+		}
+
+		for (const code in this.tribes)
+		{
+			if (
+				code ==
+				this.playerTribe
+			)
+				continue;
+
+			let tribe =
+				this.tribes[code];
+
+			if (
+				tribe.money >= 500 &&
+				tribe.generals.length <
+				tribe.maxGenerals
+			)
+			{
+				this.recruitGeneral(
+					code
+				);
+
+				// tribe.money -= 500;
 			}
 		}
 
@@ -590,6 +722,81 @@ class GameData
 		return true;
 	}
 
+startGeneralBattle(
+		attacker,
+		defender
+	)
+	{
+		const attackerTribe =
+			this.tribes[attacker.tribe];
+
+		const defenderTribe =
+			this.tribes[defender.tribe];
+
+		// Fuga: 1 vez a cada 5 turnos
+		if (
+			attacker.lastRetreatTurn !== undefined &&
+			this.turn -
+			attacker.lastRetreatTurn < 5
+		)
+		{
+			attacker.canRetreat = false;
+		}
+		else
+		{
+			attacker.canRetreat = true;
+		}
+
+		// IA foge automaticamente se estiver fraca
+		if (
+			attacker.canRetreat &&
+			randBool(0.2)
+		)
+		{
+			attacker.lastRetreatTurn =
+				this.turn;
+
+			warn(
+				attacker.tribe +
+				" retreated."
+			);
+
+			return false;
+		}
+
+		// 90% chance de morte do perdedor
+		let attackerWins =
+			randBool(0.5);
+
+		let loser =
+			attackerWins ?
+			defender :
+			attacker;
+
+		if (randBool(0.9))
+		{
+			this.killGeneral(
+				loser
+			);
+		}
+
+		let winner =
+			attackerWins ?
+			attacker :
+			defender;
+
+		this.provinces[
+			defender.location
+		].setOwner(
+			winner.tribe
+		);
+
+		winner.location =
+			defender.location;
+
+		return attackerWins;
+	}
+
 	recruitGeneral(tribe)
 	{
 		const player = this.tribes[tribe];
@@ -603,11 +810,87 @@ class GameData
 
 		player.money -= cost;
 
-		const capital = player.getCapital();
+		const capital =
+			player.getCapital();
 
-		let hero = new Hero(tribe, capital);
+		if (!capital)
+		{
+			warn(
+				"No capital for tribe " +
+				tribe
+			);
+			return false;
+		}
 
+		// let hero =
+		// 	new Hero(
+		// 		tribe,
+		// 		capital
+		// 	);
+
+		// player.generals.push(hero);
+
+		let hero =
+			new Hero(
+				tribe,
+				capital
+			);
+
+		let heroData =
+			Engine.ReadJSONFile(
+				"campaigns/grand_strategy/heroes/" +
+				player.civ +
+				".json"
+			);
+
+		if (!heroData)
+		{
+			    warn(
+					"Hero JSON not found for civ: " +
+					player.civ
+				);
+
+
+			heroData = {
+				portraits: [
+					"session/portraits/heroes/default.png"
+				],
+				traits: [],
+				bonuses: {},
+				titles: ["General"]
+			};
+		}
+
+		hero.portrait =
+			pickRandom(
+				heroData.portraits ||
+				["session/portraits/heroes/default.png"]
+			);
+
+		hero.traits =
+			heroData.traits || [];
+
+		hero.bonuses =
+			heroData.bonuses || {};
+
+		hero.title =
+			pickRandom(
+				heroData.titles ||
+				["General"]
+			);
+			
 		player.generals.push(hero);
+
+		// NOVO
+		let army = new Army(
+			hero.id,
+			tribe
+		);
+
+		army.general = hero.id;
+		army.province = capital;
+
+		this.armies.push(army);
 
 		return hero;
 	}
@@ -621,5 +904,66 @@ class GameData
 			tribe.generals.find(
 				g => g.id == heroID
 			);
+	}
+
+killGeneral(hero)
+	{
+		const tribe =
+			this.tribes[
+				hero.tribe
+			];
+
+		tribe.generals =
+			tribe.generals.filter(
+				h => h.id != hero.id
+			);
+
+		this.armies =
+			this.armies.filter(
+				a => a.general != hero.id
+			);
+
+		warn(
+			"General died: " +
+			hero.id
+		);
+	}
+
+	getArmyByGeneral(heroID)
+	{
+		return this.armies.find(
+			a => a.general == heroID
+		);
+	}
+
+	getGeneralAtProvince(
+		provinceCode,
+		excludeTribe
+	)
+	{
+		for (const tribeCode in this.tribes)
+		{
+			if (
+				tribeCode ==
+				excludeTribe
+			)
+				continue;
+
+			for (
+				const hero of
+				this.tribes[
+					tribeCode
+				].generals
+			)
+			{
+				if (
+					hero.location ==
+					provinceCode
+				)
+					return hero;
+			}
+		}
+
+		return null;
 	}
 }

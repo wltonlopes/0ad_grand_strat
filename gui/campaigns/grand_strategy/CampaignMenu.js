@@ -26,15 +26,29 @@ class CampaignMenu
 		Engine.SetGlobalHotkey("grand_strategy.camera.up", "Down", () => { this.cameraZ -= 5; });
 		Engine.SetGlobalHotkey("grand_strategy.camera.down", "Down", () => { this.cameraZ += 5; });
 		*/
-
+		this.worldMap =
+			Engine.GetGUIObjectByName(
+				"worldMap"
+			);
 		this.cameraX = 0;
 		this.cameraZ = 0;
+
+		const size =
+			this.window.getComputedSize();
+
+		this.mouseX = size.right / 2;
+		this.mouseY = size.bottom / 2;
+
 
 		this.lastRender = Date.now();
 		this.zoom = 2.0; // 200%
 		this.baseMap =
 			Engine.GetGUIObjectByName(
 				"campaignBaseMap"
+			);
+		this.worldMap =
+			Engine.GetGUIObjectByName(
+				"worldMap"
 			);
 
 	}
@@ -87,9 +101,30 @@ class CampaignMenu
 		this.infoTicker.onTurnEnd();
 	}
 
+	// centerScrollOnHero()
+	// {
+	// 	const province =
+	// 		g_GameData.provinces[
+	// 			g_GameData.playerHero.location
+	// 		];
+
+	// 	if (!province)
+	// 		return;
+
+	// 	const pos =
+	// 		province.getHeroPos();
+	// }
 	centerScrollOnHero()
 	{
-		const pos = g_GameData.provinces[g_GameData.playerHero.location].getHeroPos();
+		const province =
+			g_GameData.provinces[
+				g_GameData.playerHero.location
+			];
+
+		const pos =
+			province.getHeroPos();
+
+
 		this.cameraX =
 			pos[0] -
 			this.window.getComputedSize().right /
@@ -100,7 +135,6 @@ class CampaignMenu
 			this.window.getComputedSize().bottom /
 			(2 * this.zoom);
 	}
-
 	/**
 	 * Triggered when pressing the map background.
 	 */
@@ -193,15 +227,24 @@ class CampaignMenu
 					province.ownerTribe
 				);
 
+			const ownerTribe =
+				g_GameData.tribes[
+					province.ownerTribe
+				];
+
+			const civ =
+				ownerTribe?.civ ||
+				ownerTribe?.data?.civ;
+
 			ownerBtn.sprite =
-				"stretched:session/portraits/emblems/emblem_persians.png";
+				`stretched:session/portraits/emblems/emblem_${civ}.png`;
 		}
 		else
 		{
 			ownerBtn.enabled = false;
 
 			ownerBtn.sprite =
-				"grayscale:stretched:session/portraits/emblems/emblem_persians.png";
+				"grayscale:stretched:session/portraits/emblems/emblem_gaia.png";
 		}
 
 		// ---------------------------
@@ -312,11 +355,20 @@ class CampaignMenu
 			return;
 		}
 		this.selectedProvince = code;
+
+		// const mx = this.mouseX ?? 0;
+		// const my = this.mouseY ?? 0;
+
+		// const pos = [
+		// 	mx / this.zoom + this.cameraX,
+		// 	my / this.zoom + this.cameraZ
+		// ];
+
 		const pos = [
-			this.mouseX / this.zoom + this.cameraX,
-			this.mouseY / this.zoom + this.cameraZ
+			(this.mouseX || 0) / this.zoom + this.cameraX,
+			(this.mouseY || 0) / this.zoom + this.cameraZ
 		];
-		Engine.GetGUIObjectByName("contextPanel").size = this.toGUISize(...pos, pos[0] + 250, pos[1] + 200);
+		Engine.GetGUIObjectByName("contextPanel").size = this.toGUISize(...pos, pos[0] + 175, pos[1] + 140);
 		Engine.GetGUIObjectByName("contextPanel").hidden = false;
 
 		// Move there button.
@@ -352,22 +404,37 @@ class CampaignMenu
 			}
 		}
 		for (let i = 0; i < 5; ++i)
-			Engine.GetGUIObjectByName(`contextPanelButton[${i}]`).size = `0 ${i*28} 100% ${(i+1)*28}`;
+			Engine.GetGUIObjectByName(`contextPanelButton[${i}]`).size = `0 ${i*20} 100% ${(i+1)*20}`;
 	}
 
 	render()
 	{
-		let map =
-		Engine.GetGUIObjectByName(
-			"campaignBaseMap"
-		);
-		this.baseMap.size =
-		this.toGUISize(
-			0,
-			0,
-			4096,
-			2048
-		);
+		const delta =
+			Date.now() -
+			this.lastRender;
+
+		this.lastRender =
+			Date.now();
+
+		const SCROLL_SPEED =
+			delta * 0.8 / this.zoom;
+
+    this.worldMap.size =
+        this.toGUISize(
+            0,
+            0,
+            4096,
+            2048
+        );
+
+    this.baseMap.size =
+        this.toGUISize(
+            0,
+            0,
+            4096,
+            2048
+        );
+
 		Engine.GetGUIObjectByName("topPanelText").caption = `` +
 		`Turn ${g_GameData.turn}` +
 		` Tribe "${g_GameData.playerTribe}"` +
@@ -377,69 +444,6 @@ class CampaignMenu
 
 		this.displayHeroDetails();
 		this.displayProvinceDetails();
-
-		// Update heros
-		const generals =
-			g_GameData.tribes[
-				g_GameData.playerTribe
-			].generals;
-
-		for (let i = 0; i < 10; ++i)
-		{
-			let icon =
-				Engine.GetGUIObjectByName(
-					`heroButton[${i}]`
-				);
-
-			icon.hidden = true;
-		}
-
-		for (let i = 0;
-			i < generals.length;
-			++i)
-		{
-			const hero = generals[i];
-
-			let icon =
-				Engine.GetGUIObjectByName(
-					`heroButton[${i}]`
-				);
-
-			if (!icon)
-				continue;
-
-			let pos =
-				g_GameData.provinces[
-					hero.location
-				].getHeroPos();
-
-			icon.hidden = false;
-
-			icon.size =
-				this.toGUISize(
-					...this.centeredSizeAt(
-						[16,16],
-						pos
-					)
-				);
-
-			icon.onPress = () =>
-			{
-				g_GameData.selectHero(
-					hero.id
-				);
-
-				this.centerScrollOnHero();
-			};
-
-			// destaque do general selecionado
-		if (hero === g_GameData.playerHero)
-			icon.sprite =
-				"stretched:session/portraits/units/gaul_hero_viridomarus.png";
-		else
-			icon.sprite =
-				"grayscale:stretched:session/portraits/units/gaul_hero_viridomarus.png";
-		}
 
 		const visible = new Set();
 
@@ -458,7 +462,137 @@ class CampaignMenu
 				visible.add(p);
 			}
 		}
+		// Update heros
+		const generals =
+			g_GameData.tribes[
+				g_GameData.playerTribe
+			].generals;
 
+// Esconde todos os ícones primeiro
+		for (let i = 0; i < 100; ++i)
+		{
+			let icon =
+				Engine.TryGetGUIObjectByName(
+					`heroButton[${i}]`
+				);
+
+			if (icon)
+				icon.hidden = true;
+		}
+
+		let heroIndex = 0;
+
+		for (const tribeCode in g_GameData.tribes)
+		{
+			const tribe =
+				g_GameData.tribes[tribeCode];
+
+			for (const hero of tribe.generals)
+			{
+				// Fog of war
+				// if (
+				// 	tribeCode !=
+				// 		g_GameData.playerTribe &&
+				// 	!visible.has(hero.location)
+				// )
+				// 	continue;
+
+				let icon =
+					Engine.TryGetGUIObjectByName(
+						`heroButton[${heroIndex}]`
+					);
+
+				if (!icon)
+					continue;
+
+				heroIndex++;
+
+			let province =
+				g_GameData.provinces[
+					hero.location
+				];
+
+			if (!province)
+			{
+				warn(
+					"General without province: " +
+					hero.id
+				);
+				continue;
+			}
+
+			let pos =
+				province.getHeroPos();
+
+				icon.hidden = false;
+
+				icon.size =
+					this.toGUISize(
+						...this.centeredSizeAt(
+							[16,16],
+							pos
+						)
+					);
+
+				icon.onPress = () =>
+				{
+					if (
+						tribeCode ==
+						g_GameData.playerTribe
+					)
+					{
+						g_GameData.selectHero(hero.id);
+
+						this.centerScrollOnHero();
+						this.render();
+					}
+					else
+					{
+						this.displayEnemyGeneral(
+							hero
+						);
+					}
+				};
+
+				const portrait =
+					hero.portrait ||
+					"session/portraits/heroes/default.png";
+
+				if (
+					tribeCode ==
+					g_GameData.playerTribe
+				)
+				{
+					icon.sprite =
+						hero ==
+						g_GameData.playerHero ?
+						"stretched:" + portrait :
+						"grayscale:stretched:" + portrait;
+				}
+				else
+				{
+					icon.sprite =
+						"stretched:" + portrait;
+				}
+
+				// if (
+				// 	tribeCode ==
+				// 	g_GameData.playerTribe
+				// )
+				// {
+				// 	icon.sprite =
+				// 		hero ==
+				// 		g_GameData.playerHero ?
+				// 		"stretched:session/portraits/units/gaul_hero_viridomarus.png" :
+				// 		"grayscale:stretched:session/portraits/units/gaul_hero_viridomarus.png";
+				// }
+				// else
+				// {
+				// 	icon.sprite =
+				// 		"stretched:session/portraits/units/gaul_hero_viridomarus.png";
+				// }
+			}
+		}
 		// Update provinces
 		let i = 0;
 		for (let code in g_GameData.provinces)
@@ -486,29 +620,10 @@ class CampaignMenu
 					pos[0] + 1024,
 					pos[1] + 1024
 				);
-			// let bounds = province.getBounds();
-
-			// let content =
-			// 	province.data.maskContentBounds;
-
-			// let scaleX =
-			// 	(bounds[2] - bounds[0]) /
-			// 	(content[2] - content[0]);
-
-			// let scaleY =
-			// 	(bounds[3] - bounds[1]) /
-			// 	(content[3] - content[1]);
 
 			let b = province.getBounds();
 
-			// warn(province.code + " POS = " + uneval({
-			// 	x0: b[0],
-			// 	y0: b[1],
-			// 	x1: b[2],
-			// 	y1: b[3],
-			// 	w: b[2] - b[0],
-			// 	h: b[3] - b[1]
-			// }));
+
 			const cityIcon = Engine.GetGUIObjectByName(province.icon.name.replace("Sprite", "City"));
 			if (province.ownerTribe)
 			{
@@ -559,27 +674,35 @@ class CampaignMenu
 
 		Engine.GetGUIObjectByName("finishTurn").enabled = !didRenderEvent && g_GameData?.canAdvanceTurn();
 
-		const delta = Date.now() - this.lastRender;
-		const SCROLL_SPEED = delta * 0.6 / this.zoom;
-		if (this.mouseX < 10)
-			this.cameraX -= SCROLL_SPEED;
-		else if (this.mouseX >= this.window.getComputedSize().right - 10)
-			this.cameraX += SCROLL_SPEED;
-		if (this.mouseY < 10)
-			this.cameraZ -= SCROLL_SPEED;
-		else if (this.mouseY >= this.window.getComputedSize().bottom - 10)
-			this.cameraZ += SCROLL_SPEED;
+	const BORDER = 40;
 
-		this.lastRender = Date.now();
+	if (this.mouseX !== null && this.mouseY !== null)
+	{
+		if (this.mouseX <= BORDER)
+			this.cameraX -= SCROLL_SPEED;
+
+		if (this.mouseX >=
+			this.window.getComputedSize().right - BORDER)
+			this.cameraX += SCROLL_SPEED;
+
+		if (this.mouseY <= BORDER)
+			this.cameraZ -= SCROLL_SPEED;
+
+		if (this.mouseY >=
+			this.window.getComputedSize().bottom - BORDER)
+			this.cameraZ += SCROLL_SPEED;
+	}
 	}
 
 	handleInputAfterGui(ev)
 	{
 		if (ev.type !== "mousemotion")
 			return false;
+
 		this.mouseX = ev.x;
 		this.mouseY = ev.y;
-		return true;
+
+		return false;
 	}
 
 	centeredSizeAt(size, pos)
@@ -607,9 +730,39 @@ class CampaignMenu
 	// {
 	// 	return `${Math.round(x0 - this.cameraX)} ${Math.round(z0 - this.cameraZ)} ${Math.round(x1 - this.cameraX)} ${Math.round(z1 - this.cameraZ)}`;
 	// }
+displayEnemyGeneral(hero)
+	{
+		const tribe =
+			g_GameData.tribes[
+				hero.tribe
+			];
+
+		const province =
+			g_GameData.provinces[
+				hero.location
+			];
+
+		let text =
+			`General: ${hero.id}\n` +
+			`Tribe: ${tribe?.data?.name || hero.tribe}\n` +
+			`Province: ${province?.name || hero.location}\n` +
+			`Actions Left: ${hero.actionsLeft}`;
+
+		warn(text);
+	}
+
 }
 
-function handleInputAfterGui(ev, hoveredObject)
+function handleInputAfterGui(
+	ev,
+	hoveredObject
+)
 {
-	return g_CampaignMenu.handleInputAfterGui(ev, hoveredObject);
+    return g_CampaignMenu
+        .handleInputAfterGui(
+            ev,
+            hoveredObject
+        );
 }
+
+

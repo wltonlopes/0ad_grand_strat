@@ -90,29 +90,18 @@ class Province
 		return [150, 150, 150];
 	}
 
-	getCenterPoint()
-	{
-		let center =
-			g_GameData.geo.getPixelCenter(
-				this.code
-			);
-
-		return [
-			center.x,
-			center.y
-		];
-	}
 	getHeroPos()
 	{
-		if (this.data.heroPos)
-		{
-			return [
-				this.data.heroPos.x,
-				this.data.heroPos.y
-			];
-		}
+		if (this.data.centerpoint)
+			return this.data.centerpoint;
 
-		return this.getCenterPoint();
+		if (this.data.position)
+			return [
+				this.data.position.x + 512,
+				this.data.position.y + 512
+			];
+
+		return [2048, 1024];
 	}
 
 	getLinks()

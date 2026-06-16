@@ -1,0 +1,23 @@
+{
+    "portraits": [
+        "session/portraits/units/ptol/hero_ptolemy_I.png",
+        "session/portraits/units/ptol/hero_ptolemy_IV.png",
+        "session/portraits/units/ptol/hero_cleopatra.png"
+    ],
+
+    "traits": [
+        "charismatic",
+        "cavalry_master"
+    ],
+
+    "bonuses": {
+        "movement": 1,
+        "combat": 15,
+        "command": 10
+    },
+
+    "titles": [
+        "Strategos",
+        "Basileus"
+    ]
+}

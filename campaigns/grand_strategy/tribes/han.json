@@ -1,0 +1,7 @@
+{
+	"code": "han",
+	"name": "Han",
+	"civ": "han",
+	"color": "150 200 30",
+	"startProvinces": ["yi"]
+}

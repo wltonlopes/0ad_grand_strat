@@ -6,6 +6,11 @@
 	<script directory="gamesettings/attributes/"/>
 
 	<!-- Game data scripts loaded first. -->
+	<script file="gui/campaigns/grand_strategy/game/Army.js"/>
+	<script file="gui/campaigns/grand_strategy/game/Hero.js"/>
+	<script file="gui/campaigns/grand_strategy/game/Province.js"/>
+	<script file="gui/campaigns/grand_strategy/game/Tribe.js"/>
+	<script file="gui/campaigns/grand_strategy/game/GameData.js"/>
 	<script directory="gui/campaigns/grand_strategy/game/"/>
 	<!-- Load events after event.js is loaded-->
 	<script directory="gui/campaigns/grand_strategy/game/events/"/>
@@ -14,10 +19,10 @@
 
 	<object z="0" type="image" sprite="campaignBackground" size="0 0 100% 100%" name="campaignMenuWindow">
 	<object
+		name="worldMap"
 		z="1"
 		type="image"
 		sprite="stretched:campaigns/grand_strategy/art/world_map.png"
-		size="0 0 100% 100%"
 	/>
 	<object
 		name="campaignBaseMap"
@@ -97,7 +102,7 @@
 
 			<!-- Contextual panel -->
 			<object name="contextPanel" size="0 0 250 200" hidden="true" type="image" sprite="campaignBackground">
-				<object size="16 16 100%-16 100%-16">
+				<object size="10 10 100%-10 100%-10">
 					<object name="contextPanelButton[0]" type="button" style="StoneButtonFancy"/>
 					<object name="contextPanelButton[1]" type="button" style="StoneButtonFancy"/>
 					<object name="contextPanelButton[2]" type="button" style="StoneButtonFancy"/>
@@ -147,14 +152,14 @@
 
 			<!-- Hero -->
 			<!-- Generals -->
-			<repeat count="10">
+			<repeat count="300">
 				<object
 					type="button"
 					z="30"
 					name="heroButton[n]"
 					hidden="true"
-					sprite="stretched:session/portraits/units/gaul_hero_viridomarus.png"
-					size="0 0 50 50"/>
+	                sprite=""
+					size="0 0 45 45"/>
 			</repeat>
 		</object>
 	</object>

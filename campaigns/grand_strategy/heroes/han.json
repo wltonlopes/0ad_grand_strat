@@ -1,0 +1,23 @@
+{
+    "portraits": [
+        "session/portraits/units/han/hero_han_xin.png",
+        "session/portraits/units/han/hero_liu_bang.png",
+        "session/portraits/units/han/hero_wei_qing.png"
+    ],
+
+    "traits": [
+        "charismatic",
+        "cavalry_master"
+    ],
+
+    "bonuses": {
+        "movement": 1,
+        "combat": 15,
+        "command": 10
+    },
+
+    "titles": [
+        "Strategos",
+        "Basileus"
+    ]
+}

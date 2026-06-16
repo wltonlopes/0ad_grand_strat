@@ -1,0 +1,7 @@
+{
+	"code": "qin",
+	"name": "Qin",
+	"civ": "han",
+	"color": "0 255 10",
+	"startProvinces": ["ji"]
+}

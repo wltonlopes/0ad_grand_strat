@@ -1,0 +1,24 @@
+{
+    "portraits": [
+        "session/portraits/units/rome/hero_scipio.png",
+        "session/portraits/units/rome/hero_marcellus.png",
+        "session/portraits/units/rome/hero_maximus.png"
+    ],
+
+    "traits": [
+        "disciplined",
+        "aggressive"
+    ],
+
+    "bonuses": {
+        "movement": 0,
+        "combat": 10,
+        "command": 15
+    },
+
+    "titles": [
+        "Consul",
+        "Legate",
+        "Imperator"
+    ]
+}
