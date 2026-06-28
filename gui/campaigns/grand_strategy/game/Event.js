@@ -38,6 +38,11 @@ class GSEvent
 			return new GSPeaceProposal();
 		else if (data.type === "peaceAccepted")
 			return new GSPeaceAccepted();
+		else if (data.type === "allianceProposal")
+			return new GSAllianceProposal();
+
+		else if (data.type === "nonAggressionProposal")
+			return new GSNonAggressionProposal();
 		error("Unknown event type " + data.type);
 		return undefined;
 	}

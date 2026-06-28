@@ -173,10 +173,31 @@ class GameData
 		return game;
 	}
 
+	// save(run = CampaignRun.getCurrentRun())
+	// {
+	// 	run.data.gameData = this.Serialize();
+	// 	run.save();
+	// }
+
 	save(run = CampaignRun.getCurrentRun())
 	{
-		run.data.gameData = this.Serialize();
+		warn("=== GameData.save ===");
+
+		warn("run exists = " + (run !== undefined));
+
+		const serialized = this.Serialize();
+
+		warn("Serialize OK");
+
+		run.data.gameData = serialized;
+
+		warn("Assigned gameData");
+
+		warn("Keys: " + Object.keys(run.data).join(","));
+
 		run.save();
+
+		warn("CampaignRun.save OK");
 	}
 
 	initialiseGame(playerData, difficulty)
@@ -441,11 +462,13 @@ class GameData
 			}
 		};
 		warn("ATTRIBS = " + uneval(gameSettings.toInitAttributes()));
-        gameSettings.launchGame(assignments, false);
-		Engine.SwitchGuiPage("page_loading.xml", {
-			"attribs": gameSettings.toInitAttributes(),
+		gameSettings.launchGame(assignments, false);
+		warn("FINAL ATTRIBS = " + uneval(gameSettings.finalizedAttributes));
+
+		return {
+			"attribs": gameSettings.finalizedAttributes,
 			"playerAssignments": assignments
-		});
+		};
 	}
 
 	getAIDifficulty(garrison, playerIsAttacker)
@@ -490,6 +513,7 @@ class GameData
 				// Clamp to avoid weirdness.
 				tribe.money = Math.max(-999999, Math.min(tribe.money + totalBalance, 999999999));
 				tribe.lastBalance = totalBalance;
+				this.processTradeIncome();
 				// TODO: nasty events if in debt, possibly losing the game.
 			}
 		}
@@ -636,6 +660,10 @@ class GameData
 			// End of turn, control will be returned to the player.
 			this.turn++;
 
+		// Atualiza estatísticas das tribos
+			for (const code in this.tribes)
+				this.tribes[code].updateStatistics();
+
 		for (const tribeCode in this.tribes)
 		{
 			for (const general of
@@ -709,7 +737,7 @@ class GameData
 		if (event.data.target !== this.playerTribe)
 			pickRandom(g_GameData.tribes[event.data.target]?.getDiplomacy(event.data.from).getResponses(event))?.action?.();
 		// TODO: unhack this
-		g_CampaignMenu.infoTicker.initialise();
+		// g_CampaignMenu.infoTicker.initialise();
 	}
 
 	canAdvanceTurn()
@@ -965,5 +993,31 @@ killGeneral(hero)
 		}
 
 		return null;
+	}
+
+	processTradeIncome()
+	{
+		for (const code in this.tribes)
+		{
+			const tribe = this.tribes[code];
+
+			for (const other in tribe.diplo)
+			{
+				const diplo = tribe.diplo[other];
+
+				if (!diplo.treaties?.trade)
+					continue;
+
+				if (!this.canTrade(code, other))
+					continue;
+
+				tribe.money += 10;
+			}
+		}
+	}
+	canTrade(tribeA, tribeB)
+	{
+		// Temporário
+		return true;
 	}
 }

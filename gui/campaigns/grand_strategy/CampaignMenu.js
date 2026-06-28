@@ -1,10 +1,12 @@
 /**
  */
-class CampaignMenu
+class CampaignMenu extends AutoWatcher
 {
-	constructor(campaignRun)
+	constructor(run, closePageCallback)
 	{
-		this.run = campaignRun;
+		super("render");
+		this.run = run;
+		this.closePageCallback = closePageCallback;
 
 		this.selectedProvince = -1;
 
@@ -50,29 +52,62 @@ class CampaignMenu
 			Engine.GetGUIObjectByName(
 				"worldMap"
 			);
+		Engine.GetGUIObjectByName("backToMain").onPress =() => this.goBackToMainMenu();
+
+		this.closePageCallback =
+			closePageCallback;
 
 	}
 
+	// initialise()
+	// {
+
+	// 	if (this.run.data.gameData)
+	// 		GameData.loadRun();
+
+	// 	this.centerScrollOnHero();
+	// 	this.infoTicker.initialise();
+
+	// 	this.render();
+	// }
+
 	initialise()
 	{
+		warn("initialise()");
 
 		if (this.run.data.gameData)
 			GameData.loadRun();
 
+		warn("GameData carregado");
+
 		this.centerScrollOnHero();
+
+		warn("Hero centralizado");
+
 		this.infoTicker.initialise();
 
+		warn("Ticker");
+
 		this.render();
+
+		warn("Render");
 	}
+
 	goBackToMainMenu()
 	{
 		g_GameData.save();
-		Engine.SwitchGuiPage("page_pregame.xml", {});
+
+		this.closePageCallback({
+			[Engine.openRequest]:
+			{
+				page: "page_pregame.xml"
+			}
+		});
 	}
 
 	openLoadSave()
 	{
-		Engine.SwitchGuiPage("campaigns/grand_strategy/loadsave/page.xml", {
+		SwitchGuiPage("campaigns/grand_strategy/loadsave/page.xml", {
 			"gameData": g_GameData.Serialize(),
 		});
 	}
@@ -218,14 +253,19 @@ class CampaignMenu
 				"provinceOwnerButton"
 			);
 
-		if (province.ownerTribe)
+		if (
+			province.ownerTribe &&
+			province.ownerTribe !== g_GameData.playerTribe
+		)
 		{
 			ownerBtn.enabled = true;
 
 			ownerBtn.onPress = () =>
-				this.displayTribeDetails(
+			{
+				this.openDiplomacy(
 					province.ownerTribe
 				);
+			};
 
 			const ownerTribe =
 				g_GameData.tribes[
@@ -299,6 +339,31 @@ class CampaignMenu
 		}
 	}
 
+	openDiplomacy(tribeCode)
+	{
+		if (tribeCode === g_GameData.playerTribe)
+		{
+			warn("Cannot open diplomacy with ourselves");
+			return;
+		}
+
+		if (!g_GameData.tribes[tribeCode])
+		{
+			warn("Cannot open diplomacy: unknown tribe " + tribeCode);
+			return;
+		}
+
+		this.diplomacyController =
+			new DiplomacyController(
+				this,
+				tribeCode
+			);
+
+		Engine.GetGUIObjectByName("diplomacyMainPanel").hidden = false;
+		Engine.GetGUIObjectByName(
+			"diplomacyWindow"
+		).hidden = false;
+	}
 
 	displayTribeDetails(tribeCode)
 	{
@@ -339,7 +404,22 @@ class CampaignMenu
 		let province = g_GameData.provinces[g_GameData.playerHero.location];
 
 		Engine.GetGUIObjectByName("doAttack").enabled = g_GameData.playerHero.canAttack(province.code);
-		Engine.GetGUIObjectByName("doAttack").onPress = () => g_GameData.playerHero.doAttack(province.code);
+		Engine.GetGUIObjectByName("doAttack").onPress = () =>
+		{
+			const battle =
+				g_GameData.playerHero.doAttack(province.code);
+
+			if (!battle)
+				return;
+
+			this.closePageCallback({
+				[Engine.openRequest]:
+				{
+					page: "page_loading.xml",
+					argument: battle
+				}
+			});
+		};
 
 		Engine.GetGUIObjectByName("strengthenGarrison").enabled = g_GameData.playerHero.canStrengthen(province.code);
 		Engine.GetGUIObjectByName("weakenGarrison").enabled = g_GameData.playerHero.canWeaken(province.code);
@@ -753,16 +833,16 @@ displayEnemyGeneral(hero)
 
 }
 
-function handleInputAfterGui(
-	ev,
-	hoveredObject
-)
+
+function handleInputAfterGui(ev, hoveredObject)
 {
-    return g_CampaignMenu
-        .handleInputAfterGui(
-            ev,
-            hoveredObject
-        );
+	if (!g_GrandStrategyPage || !g_GrandStrategyPage.menu)
+		return false;
+
+	return g_GrandStrategyPage.menu.handleInputAfterGui(
+		ev,
+		hoveredObject
+	);
 }
 
 

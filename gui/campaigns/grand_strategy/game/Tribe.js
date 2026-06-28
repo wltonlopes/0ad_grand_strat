@@ -24,6 +24,17 @@ class Tribe
 		this.lastBalance = 0;
 
 		this.diplo = {};
+
+		this.statistics =
+		{
+			economy: 0,
+			army: 0,
+			navy: 0,
+			population: 0,
+			manpower: 0,
+			prestige: 0,
+			happiness: 70
+		};
 	}
 
 	Serialize()
@@ -32,7 +43,7 @@ class Tribe
 			"money": this.money,
 			"lastBalance": this.lastBalance || 0,
 			"civ": this.civ,
-
+			"statistics": this.statistics,
 			"generals": this.generals.map(g => g.Serialize()),
 			"maxGenerals": this.maxGenerals,
 
@@ -52,6 +63,15 @@ class Tribe
 		this.lastBalance = data.lastBalance;
 		this.civ = data.civ;
 
+		this.statistics = data.statistics || {
+			economy: 0,
+			army: 0,
+			navy: 0,
+			population: 0,
+			manpower: 0,
+			prestige: 0,
+			happiness: 70
+		};
 		this.generals = [];
 		this.maxGenerals = data.maxGenerals || 1;
 
@@ -117,6 +137,44 @@ class Tribe
 		return this.diplo[target];
 	}
 
+	getCulture()
+	{
+		return this.data.culture || "Unknown";
+	}
+
+	getGovernment()
+	{
+		return this.data.government || "Tribe";
+	}
+
+	getLeader()
+	{
+		if (!this.generals.length)
+			return undefined;
+
+		return this.generals[0];
+	}
+
+	getEmblem()
+	{
+		return this.civ;
+	}
+
+	getEconomy()
+	{
+		return this.lastBalance;
+	}
+
+	getArmyStrength()
+	{
+		return this.generals.length;
+	}
+
+	getPopulation()
+	{
+		return this.controlledProvinces.length;
+	}
+
 	getCapital()
 	{
 		if (this.capital)
@@ -126,6 +184,58 @@ class Tribe
 			return this.controlledProvinces[0];
 
 		return undefined;
+	}
+
+	// getDiplomacyInfo()
+	// {
+	// 	return {
+	// 		name: this.getName(),
+	// 		culture: this.getCulture(),
+	// 		government: this.getGovernment(),
+	// 		capital: this.getCapital(),
+	// 		emblem: this.getEmblem(),
+	// 		leader: this.getLeader(),
+	// 		economy: this.getEconomy(),
+	// 		army: this.getArmyStrength(),
+	// 		provinces: this.controlledProvinces.length,
+	// 		population: this.getPopulation(),
+	// 		money: this.money
+	// 	};
+	// }
+	getDiplomacyInfo()
+	{
+		return {
+			name: this.getName(),
+			civ: this.civ,
+			capital: this.getCapital(),
+
+			money: this.money,
+
+			generals: this.generals.length,
+			provinces: this.controlledProvinces.length,
+
+			statistics: this.statistics
+		};
+	}
+	updateStatistics()
+	{
+		this.statistics.population = this.controlledProvinces.length;
+		this.statistics.army = this.generals.length;
+		this.statistics.economy = this.lastBalance;
+		this.statistics.happiness = this.calculateAverageHappiness();
+	}
+
+	calculateAverageHappiness()
+	{
+		if (!this.controlledProvinces.length)
+			return 0;
+
+		let total = 0;
+
+		for (let province of this.controlledProvinces)
+			total += g_GameData.provinces[province].happiness;
+
+		return Math.round(total / this.controlledProvinces.length);
 	}
 
 }

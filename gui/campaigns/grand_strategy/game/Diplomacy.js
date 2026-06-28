@@ -11,7 +11,21 @@ class GSDiplomacy
 		// IDs of events
 		this.eventHistory = [];
 		this.opinion = 0;
-		this.status = this.PEACE;
+		this.status = this.NEUTRAL;
+
+		// Tratados diplomáticos
+		this.treaties =
+		{
+			alliance: false,
+			nonAggression: false,
+			trade: false,
+			militaryAccess: false,
+			vassal: false,
+			embargo: false
+		};
+
+		// Confiança entre os povos (0-100)
+		this.trust = 50;
 	}
 
 	serialize()
@@ -20,6 +34,8 @@ class GSDiplomacy
 			"op": this.opinion,
 			"hist": this.eventHistory,
 			"stat": this.status,
+			"trust": this.trust,
+			"treaties": this.treaties
 		};
 	}
 
@@ -28,6 +44,17 @@ class GSDiplomacy
 		this.eventHistory = data.hist;
 		this.opinion = data.op;
 		this.status = data.stat;
+
+		this.trust = data.trust ?? 50;
+
+		this.treaties = data.treaties || {
+			alliance: false,
+			nonAggression: false,
+			trade: false,
+			militaryAccess: false,
+			vassal: false,
+			embargo: false
+		};
 		return this;
 	}
 
@@ -105,10 +132,32 @@ class GSDiplomacy
 	getActions()
 	{
 		return {
-			"insult": true,
-			"goHostile": this.status === this.PEACE,
-			"declareWar": this.status !== this.WAR,
-			"proposePeace": this.status === this.WAR
+
+			insult: true,
+
+			proposeAlliance:
+				!this.treaties.alliance,
+
+			breakAlliance:
+				this.treaties.alliance,
+
+			proposeTrade:
+				!this.treaties.trade,
+
+			cancelTrade:
+				this.treaties.trade,
+
+			proposeNAP:
+				!this.treaties.nonAggression,
+
+			cancelNAP:
+				this.treaties.nonAggression,
+
+			declareWar:
+				this.status !== this.WAR,
+
+			proposePeace:
+				this.status === this.WAR
 		};
 	}
 
@@ -138,6 +187,10 @@ class GSDiplomacy
 		const oldStat = this.status;
 		this.status = this.WAR;
 		this.opinion = -100;
+		this.treaties.alliance = false;
+		this.treaties.trade = false;
+		this.treaties.nonAggression = false;
+		this.treaties.militaryAccess = false;
 		return new GSDiploStatusChange({
 			"from": this.from,
 			"target": this.target,
@@ -156,7 +209,7 @@ class GSDiplomacy
 
 	makePeace(originalAsker)
 	{
-		this.status = this.PEACE;
+		this.status = this.NEUTRAL;
 		this.opinion = 0;
 		return new GSPeaceAccepted({
 			"from": this.from,
@@ -164,10 +217,48 @@ class GSDiplomacy
 			"originalAsker": originalAsker,
 		});
 	}
+
+	proposeAlliance()
+	{
+		return new GSAllianceProposal({
+			from: this.from,
+			target: this.target
+		});
+	}
+
+	proposeTrade()
+	{
+		return new GSTradeProposal({
+			from: this.from,
+			target: this.target
+		});
+	}
+
+	proposeNonAggression()
+	{
+		return new GSNonAggressionProposal({
+			from: this.from,
+			target: this.target
+		});
+	}
+
+	isAllied()
+	{
+		return this.treaties.alliance;
+	}
+
+	hasTrade()
+	{
+		return this.treaties.trade;
+	}
+
+	hasNonAggression()
+	{
+		return this.treaties.nonAggression;
+	}
 }
 
-GSDiplomacy.prototype.ALLY = 400;
-GSDiplomacy.prototype.TRADING = 300;
-GSDiplomacy.prototype.PEACE = 0;
+GSDiplomacy.prototype.NEUTRAL = 0;
 GSDiplomacy.prototype.HOSTILE = 100;
 GSDiplomacy.prototype.WAR = 200;
+GSDiplomacy.prototype.ALLY = 300;

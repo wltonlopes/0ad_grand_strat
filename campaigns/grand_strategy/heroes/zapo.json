@@ -1,0 +1,23 @@
+{
+    "portraits": [
+        "session/portraits/units/maur/hero_ashoka.png",
+        "session/portraits/units/maur/hero_chanakya.png",
+        "session/portraits/units/maur/hero_chandragupta.png"
+    ],
+
+    "traits": [
+        "charismatic",
+        "jaguar"
+    ],
+
+    "bonuses": {
+        "movement": 1,
+        "combat": 11,
+        "command": 10
+    },
+
+    "titles": [
+        "Ajaw",
+        "Ajaw"
+    ]
+}

@@ -42,3 +42,57 @@ class GSDiplomacyEvent extends GSEvent
 		});
 	}
 }
+
+class GSAllianceProposal extends GSDiplomacyEvent
+{
+	constructor(data)
+	{
+		super("allianceProposal", data);
+	}
+
+	needUserInput()
+	{
+		return false;
+	}
+
+	getTickerText()
+	{
+		return this.sprintfTribes("%(from)s has proposed an alliance with %(target)s.");
+	}
+}
+
+class GSTradeProposal extends GSDiplomacyEvent
+{
+	constructor(data)
+	{
+		super("tradeProposal", data);
+	}
+
+	needUserInput()
+	{
+		return false;
+	}
+
+	getTickerText()
+	{
+		return this.sprintfTribes("%(from)s has proposed a trade agreement with %(target)s.");
+	}
+}
+
+class GSNonAggressionProposal extends GSDiplomacyEvent
+{
+	constructor(data)
+	{
+		super("nonAggressionProposal", data);
+	}
+
+	needUserInput()
+	{
+		return false;
+	}
+
+	getTickerText()
+	{
+		return this.sprintfTribes("%(from)s has proposed a non-aggression pact with %(target)s.");
+	}
+}

@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<objects>
+    <script file="gui/campaigns/grand_strategy/game/GameData.js"/>
+    <script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyController.js"/>
+
+    <script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyNation.js"/>
+
+    <script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyRelations.js"/>
+
+    <script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyMilitary.js"/>
+
+    <script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyTreaties.js"/>
+
+    <script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyHistory.js"/>
+
+    <script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyActions.js"/>
+
+    <script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyPage.js"/>
+
+    <!-- Background -->
+    <object
+        name="diplomacyWindow"
+        hidden="true"
+        type="image"
+        z="1000"
+        sprite="panelShader"
+        color="30 30 35 230"
+        size="5% 5% 95% 95%">
+
+        <!-- Title -->
+        <object
+            name="diplomacyTitle"
+            type="text"
+            style="ModernLabelText"
+            size="50%-200 12 50%+200 40">
+
+            <translatableAttribute id="caption">
+                Diplomacy
+            </translatableAttribute>
+
+        </object>
+
+        <!-- Main Panel -->
+
+        <object
+            name="diplomacyPanel"
+            type="image"
+            z="1001"
+            sprite="panelShader"
+            color="40 40 45 230"
+            size="5% 5% 95% 95%">
+
+            <!-- Emblem -->
+
+            <object
+                name="tribeEmblem"
+                type="image"
+                size="24 24 160 160"/>
+
+            <!-- Portrait -->
+
+            <object
+                name="tribePortrait"
+                type="image"
+                size="180 24 316 160"/>
+
+            <!-- Name -->
+
+            <object
+                name="tribeName"
+                type="text"
+                style="ModernLabelText"
+                size="340 24 100%-20 56"/>
+
+            <!-- Government -->
+
+            <object
+                name="tribeGovernment"
+                type="text"
+                size="340 60 100%-20 84"/>
+
+            <!-- Culture -->
+
+            <object
+                name="tribeCulture"
+                type="text"
+                size="340 86 100%-20 110"/>
+
+            <!-- Capital -->
+
+            <object
+                name="tribeCapital"
+                type="text"
+                size="340 112 100%-20 136"/>
+
+            <!-- Relations -->
+
+            <object
+                name="relationPanel"
+                type="image"
+                sprite="panelShader"
+                size="20 190 48% 360">
+
+                <object
+                    name="relationTitle"
+                    type="text"
+                    style="ModernLabelText"
+                    size="10 10 100%-10 34">
+
+                    <translatableAttribute id="caption">
+                        Diplomatic Relations
+                    </translatableAttribute>
+                </object>
+
+                <object
+                    name="relationStatus"
+                    type="text"
+                    style="ModernText"
+                    size="10 46 100%-10 70">
+
+                    <translatableAttribute id="caption">
+                        Status: -
+                    </translatableAttribute>
+
+                </object>
+
+                <object
+                    name="relationOpinion"
+                    type="text"
+                    style="ModernText"
+                    size="10 74 100%-10 98">
+
+                    <translatableAttribute id="caption">
+                        Opinion: -
+                    </translatableAttribute>
+
+                </object>
+
+                <object
+                    name="relationTrust"
+                    type="text"
+                    style="ModernText"
+                    size="10 102 100%-10 126">
+
+                    <translatableAttribute id="caption">
+                        Trust: -
+                    </translatableAttribute>
+
+                </object>
+
+            </object>
+
+            <!-- Power -->
+
+            <object
+                name="strengthPanel"
+                type="image"
+                sprite="panelShader"
+                size="52% 190 100%-20 360">
+
+                <object name="economyValue"
+                    type="text"
+                    style="ModernLabelText"
+                    size="10 10 100%-10 34"/>
+
+                <object name="armyValue"
+                    type="text"
+                    style="ModernLabelText"
+                    size="10 38 100%-10 62"/>
+
+                <object name="navyValue"
+                    type="text"
+                    style="ModernLabelText"
+                    size="10 66 100%-10 90"/>
+
+                <object name="populationValue"
+                    type="text"
+                    style="ModernLabelText"
+                    size="10 94 100%-10 118"/>
+
+            </object>
+
+
+
+
+            <object
+                name="treatyPanel"
+                type="image"
+                sprite="panelShader"
+                color="40 40 45 230"
+                size="20 380 48% 100%-80">
+
+                <object
+                    name="treatyTitle"
+                    type="text"
+                    style="ModernLabelText"
+                    size="10 10 100%-10 34">
+
+                    <translatableAttribute id="caption">
+                        Active Treaties
+                    </translatableAttribute>
+
+                </object>
+
+                <object
+                    name="treatyList"
+                    type="text"
+                    style="ModernText"
+                    size="10 40 100%-10 100%-10"/>
+
+            </object>
+            <!-- History -->
+
+            <object
+                name="historyPanel"
+                type="image"
+                sprite="panelShader"
+                color="40 40 45 230"
+                size="52% 380 100%-20 100%-80">
+
+                <object
+                    name="historyTitle"
+                    type="text"
+                    style="ModernLabelText"
+                    size="10 10 100%-10 34">
+
+                    <translatableAttribute id="caption">
+                        History
+                    </translatableAttribute>
+
+                </object>
+
+                <object
+                    name="historyList"
+                    type="text"
+                    style="ModernText"
+                    size="10 40 100%-10 100%-10"/>
+
+            </object>
+
+            <!-- Botões -->
+
+            <object
+                name="allyButton"
+                type="button"
+                style="StoneButtonFancy"
+                size="20 100%-56 170 100%-20">
+
+                <translatableAttribute id="caption">
+                    Alliance
+                </translatableAttribute>
+
+            </object>
+
+            <object
+                name="pactButton"
+                type="button"
+                style="StoneButtonFancy"
+                size="180 100%-56 330 100%-20">
+
+                <translatableAttribute id="caption">
+                    Pact
+                </translatableAttribute>
+
+            </object>
+
+            <object
+                name="tradeButton"
+                type="button"
+                style="StoneButtonFancy"
+                size="340 100%-56 490 100%-20">
+
+                <translatableAttribute id="caption">
+                    Trade
+                </translatableAttribute>
+
+            </object>
+
+            <object
+                name="warButton"
+                type="button"
+                style="StoneButtonFancy"
+                size="500 100%-56 650 100%-20">
+
+                <translatableAttribute id="caption">
+                    Declare War
+                </translatableAttribute>
+
+            </object>
+
+            <object
+                name="peaceButton"
+                type="button"
+                style="StoneButtonFancy"
+                size="660 100%-56 810 100%-20">
+
+                <translatableAttribute id="caption">
+                    Peace
+                </translatableAttribute>
+
+            </object>
+
+            <object
+                name="closeButton"
+                type="button"
+                style="StoneButtonFancy"
+                size="820 100%-56 970 100%-20">
+
+                <translatableAttribute id="caption">
+                    Close
+                </translatableAttribute>
+
+            </object>
+
+        </object>
+
+    </object>
+
+</objects>

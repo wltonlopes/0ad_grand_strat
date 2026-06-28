@@ -15,7 +15,29 @@
 	<!-- Load events after event.js is loaded-->
 	<script directory="gui/campaigns/grand_strategy/game/events/"/>
 	<!-- UI stuff - z_init is last. -->
-	<script directory="gui/campaigns/grand_strategy/"/>
+	<script file="gui/common/CompatGui.js"/>
+	<script file="gui/campaigns/grand_strategy/GrandStrategyPage.js"/>
+	
+	<script file="gui/campaigns/grand_strategy/EventPanel.js"/>
+	<script file="gui/campaigns/grand_strategy/InfoTicker.js"/>
+	<script file="gui/campaigns/grand_strategy/GeneralRecruitment.js"/>
+	<script file="gui/campaigns/grand_strategy/CampaignMenu.js"/>
+
+	<script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyController.js"/>
+
+	<script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyNation.js"/>
+
+	<script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyRelations.js"/>
+
+	<script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyMilitary.js"/>
+
+	<script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyTreaties.js"/>
+
+	<script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyHistory.js"/>
+
+	<script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyActions.js"/>
+
+	<script file="gui/campaigns/grand_strategy/z_init.js"/>
 
 	<object z="0" type="image" sprite="campaignBackground" size="0 0 100% 100%" name="campaignMenuWindow">
 	<object
@@ -69,7 +91,7 @@
 					<translatableAttribute id="caption">Province Details</translatableAttribute>
 				</object>
 				<object name="provinceDetailsText" type="text" style="ModernLabelText" size="0 40 100% 100%" />
-				<object type="button" name="provinceOwnerButton" sprite="stretched:session/portraits/emblems/emblem_persians.png" size="100%-70 10 100%-10 70"/>
+				<object type="button" name="provinceOwnerButton" sprite="stretched:session/portraits/emblems/emblem_achaemenids.png" size="100%-70 10 100%-10 70"/>
 			
 			<object
 				name="trainGeneral"
@@ -140,6 +162,247 @@
 			</object>
 		</object>
 	
+
+
+	<!-- AQUI -->
+	<object
+		name="diplomacyMainPanel"
+		hidden="true"
+		z="1000"
+		type="image"
+		sprite="color:0 0 0 120"
+		size="8 8 100%-8 100%-8">
+
+		<!-- Painel Principal -->
+
+		<object
+			name="diplomacyWindow"
+			hidden="true"
+			z="1001"
+			type="image"
+			sprite="stretched:campaigns/grand_strategy/art/world_map.png"
+			size="5% 5% 95% 95%">
+
+			<object
+				name="tribeEmblem"
+				type="image"
+				size="24 24 160 160"/>
+
+				<!-- Retrato -->
+
+				<object
+					name="tribePortrait"
+					type="image"
+					size="180 24 316 160"/>
+
+				<!-- Nome -->
+
+				<object
+					name="tribeName"
+					type="text"
+					style="ModernLabelText"
+					size="340 24 100%-20 56"/>
+
+				<!-- Governo -->
+
+				<object
+					name="tribeGovernment"
+					type="text"
+					size="340 60 100%-20 84"/>
+
+				<!-- Cultura -->
+
+				<object
+					name="tribeCulture"
+					type="text"
+					size="340 86 100%-20 110"/>
+
+				<!-- Capital -->
+
+				<object
+					name="tribeCapital"
+					type="text"
+					size="340 112 100%-20 136"/>
+
+				<!-- Relações -->
+
+				<object
+					name="relationPanel"
+					type="image"
+					sprite="panelShader"
+					size="20 190 48% 360">
+
+					<object
+						name="relationTitle"
+						type="text"
+						style="ModernLabelText"
+						size="10 10 100%-10 34">
+
+						<translatableAttribute id="caption">
+							Diplomatic Relations
+						</translatableAttribute>
+
+					</object>
+
+					<object
+						name="relationStatus"
+						type="text"
+						style="ModernLabelText"
+						size="10 46 100%-10 70"/>
+
+					<object
+						name="relationOpinion"
+						type="text"
+						style="ModernLabelText"
+						size="10 74 100%-10 98"/>
+
+					<object
+						name="relationTrust"
+						type="text"
+						style="ModernLabelText"
+						size="10 102 100%-10 126"/>
+
+				</object>
+
+				<!-- Poder -->
+
+				<object
+					name="strengthPanel"
+					type="image"
+					sprite="panelShader"
+					size="52% 190 100%-20 360">
+
+					<object name="economyValue"
+						type="text"
+						style="ModernLabelText"
+						size="10 10 100%-10 34"/>
+
+					<object name="armyValue"
+						type="text"
+						style="ModernLabelText"
+						size="10 38 100%-10 62"/>
+
+					<object name="navyValue"
+						type="text"
+						style="ModernLabelText"
+						size="10 66 100%-10 90"/>
+
+					<object name="populationValue"
+						type="text"
+						style="ModernLabelText"
+						size="10 94 100%-10 118"/>
+
+				</object>
+				<object
+					name="treatyPanel"
+					type="image"
+					sprite="panelShader"
+					size="20 380 48% 100%-80">
+
+					<object
+						name="treatyList"
+						type="text"
+						style="ModernLabelText"
+						size="10 10 100%-10 100%-10"/>
+
+				</object>
+				<!-- Histórico -->
+
+				<object
+					name="historyPanel"
+					type="image"
+					sprite="panelShader"
+					size="52% 380 100%-20 100%-80">
+
+					<object
+					name="historyList"
+					type="text"
+					style="ModernLabelText"
+					size="10 10 100%-10 100%-10"/>
+					
+					
+				</object>
+
+				<!-- Botões -->
+
+				<object
+					name="allyButton"
+					type="button"
+					style="StoneButtonFancy"
+					size="20 100%-56 170 100%-20">
+
+					<translatableAttribute id="caption">
+						Alliance
+					</translatableAttribute>
+
+				</object>
+
+				<object
+					name="pactButton"
+					type="button"
+					style="StoneButtonFancy"
+					size="180 100%-56 330 100%-20">
+
+					<translatableAttribute id="caption">
+						Pact
+					</translatableAttribute>
+
+				</object>
+
+				<object
+					name="tradeButton"
+					type="button"
+					style="StoneButtonFancy"
+					size="340 100%-56 490 100%-20">
+
+					<translatableAttribute id="caption">
+						Trade
+					</translatableAttribute>
+
+				</object>
+
+				<object
+					name="warButton"
+					type="button"
+					style="StoneButtonFancy"
+					size="500 100%-56 650 100%-20">
+
+					<translatableAttribute id="caption">
+						Declare War
+					</translatableAttribute>
+
+				</object>
+
+				<object
+					name="peaceButton"
+					type="button"
+					style="StoneButtonFancy"
+					size="660 100%-56 810 100%-20">
+
+					<translatableAttribute id="caption">
+						Peace
+					</translatableAttribute>
+
+				</object>
+
+				<object
+					name="closeButton"
+					type="button"
+					style="StoneButtonFancy"
+					size="820 100%-56 970 100%-20">
+
+					<translatableAttribute id="caption">
+						Close
+					</translatableAttribute>
+
+				</object>
+
+			</object>
+
+		</object>
+		<!-- TODO: aqui entra o conteúdo do antigo page.xml -->
+
+
 		<!-- GFX -->
 		<object z="10">
 			<!-- Provinces -->

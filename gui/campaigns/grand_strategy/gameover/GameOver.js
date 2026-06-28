@@ -13,7 +13,7 @@ function init(data) {
 		"newCampaignButton"
 	).onPress = () =>
 	{
-		Engine.SwitchGuiPage(
+		SwitchGuiPage(
 			"campaigns/grand_strategy/init/page.xml"
 		);
 	};

@@ -1,0 +1,7 @@
+{
+	"code": "maya",
+	"name": "Kaminaljuyu",
+	"civ": "maya",
+	"color": "255 128 128",
+	"startProvinces": ["maya_highlands"]
+}

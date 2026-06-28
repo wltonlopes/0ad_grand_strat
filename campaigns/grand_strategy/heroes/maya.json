@@ -1,0 +1,23 @@
+{
+    "portraits": [
+        "session/portraits/units/gaul/hero_brennus.png",
+        "session/portraits/units/gaul/hero_vercingetorix.png",
+        "session/portraits/units/gaul/hero_viridomarus.png"
+    ],
+
+    "traits": [
+        "charismatic",
+        "jaguar"
+    ],
+
+    "bonuses": {
+        "movement": 1,
+        "combat": 11,
+        "command": 10
+    },
+
+    "titles": [
+        "Ajaw",
+        "Ajaw"
+    ]
+}

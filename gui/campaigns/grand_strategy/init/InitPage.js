@@ -1,14 +1,21 @@
 class InitPage
 {
-	constructor()
+	constructor(closePageCallback)
 	{
+		this.closePageCallback = closePageCallback;
 		this.civs = this.loadCivData();
 		this.provinces = this.loadProvinces();
 
 		// UI setup.
 
 		Engine.GetGUIObjectByName("abortButton").caption="Back to Main Menu";
-		Engine.GetGUIObjectByName("abortButton").onPress = () => Engine.SwitchGuiPage("page_pregame.xml", {});
+		Engine.GetGUIObjectByName("abortButton").onPress =
+			() => this.closePageCallback({
+				[Engine.openRequest]:
+				{
+					page: "page_pregame.xml"
+				}
+			});
 
 		Engine.GetGUIObjectByName("campaignTitle").caption = "Grand Strategy";
 		let desc = "Destined for glory? Ever since you were young, you've had the spirit of a warrior. A strong soul, and the right combination of will, luck and destiny to wield it effectively. Now your people look to you to guide them into the future, whatever may come.";
@@ -173,6 +180,8 @@ onStartRequest()
 	actuallyStart()
 	{
 		// Writes g_GameData
+		warn("CREATE GAME");
+
 		GameData.createNewGame(
 			{
 				"civ": this.civSelect.list_data[this.civSelect.selected],
@@ -181,12 +190,30 @@ onStartRequest()
 			},
 			this.difficultySelect.list_data[this.difficultySelect.selected]
 		);
+
+		warn("GAME CREATED");
+
 		const run = CampaignRun.getCurrentRun();
-		// Use the original filename to track all files of this particular GS run.
-		run.meta.gs_identifier = run.filename;
-		run.save();
-		Engine.SwitchGuiPage("campaigns/grand_strategy/page.xml", {
-			"filename": run.filename
+
+		warn("RUN = " + run.filename);
+
+		warn("Saving GameData");
+
+		g_GameData.save(run);
+
+		warn("Saved");
+
+		warn("Serialized keys = " + Object.keys(run.data));
+
+		this.closePageCallback({
+			[Engine.openRequest]:
+			{
+				page: "campaigns/grand_strategy/page.xml",
+				argument:
+				{
+					filename: run.filename
+				}
+			}
 		});
 	}
 
@@ -229,8 +256,15 @@ onStartRequest()
 	}
 	}
 
-		function init()
+	var g_InitPage;
+
+	function init(initData)
+	{
+		return new Promise(closePageCallback =>
 		{
-			const page = new InitPage();
-			page.render();
-		}
+			g_InitPage =
+				new InitPage(closePageCallback);
+
+			g_InitPage.render();
+		});
+	}

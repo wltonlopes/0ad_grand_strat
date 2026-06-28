@@ -166,11 +166,6 @@ class Hero
 			this.actionsLeft >= 1;
 	}
 
-	// doAttack(code)
-	// {
-	// 	this.actionsLeft--;
-	// 	return g_GameData.playOutAttack(this.tribe, code);
-	// }
 	doAttack(code)
 	{
 		const province = g_GameData.provinces[code];
@@ -179,7 +174,11 @@ class Hero
 			return false;
 
 		this.actionsLeft--;
-		return g_GameData.playOutAttack(this.tribe, code);
+
+		return g_GameData.playOutAttack(
+			this.tribe,
+			code
+		);
 	}
 
 	canStrengthen(code)

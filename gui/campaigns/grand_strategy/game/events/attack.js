@@ -91,7 +91,7 @@ autoResolve()
 
 	if (playerOwned == 0)
 	{
-		Engine.SwitchGuiPage(
+		SwitchGuiPage(
 			"campaigns/grand_strategy/gameover/page.xml",
 			{
 				"title": "Defeat",
