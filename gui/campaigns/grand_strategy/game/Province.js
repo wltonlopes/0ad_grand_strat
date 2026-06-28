@@ -56,13 +56,17 @@ class Province
 		this.ownerTribe = undefined;
 		this.name = this.data.name;
 		this.garrison = 0;
+		this.happiness = 50; // 0-100, affects tax revenue
+		this.inRevolt = false; // Flag to track if province is in revolt
 	}
 
 	Serialize()
 	{
 		return {
 			"ownerTribe": this.ownerTribe,
-			"garrison": this.garrison > 0 ? this.garrison : undefined
+			"garrison": this.garrison > 0 ? this.garrison : undefined,
+			"happiness": this.happiness,
+			"inRevolt": this.inRevolt || false
 		};
 	}
 
@@ -70,6 +74,8 @@ class Province
 	{
 		this.ownerTribe = data.ownerTribe;
 		this.garrison = data.garrison || 0;
+		this.happiness = data.happiness !== undefined ? data.happiness : 50;
+		this.inRevolt = data.inRevolt || false;
 	}
 
 	// UI
@@ -244,5 +250,30 @@ class Province
 			);
 
 		return bounds;
+	}
+
+	// Happiness management
+	getHappiness()
+	{
+		return Math.max(0, Math.min(100, this.happiness));
+	}
+
+	setHappiness(value)
+	{
+		this.happiness = Math.max(0, Math.min(100, value));
+	}
+
+	changeHappiness(delta)
+	{
+		this.happiness = Math.max(0, Math.min(100, this.happiness + delta));
+	}
+
+	getTaxRate()
+	{
+		// Happiness affects tax collection
+		// At 100 happiness: 100% tax
+		// At 50 happiness: 75% tax
+		// At 0 happiness: 0% tax
+		return this.getHappiness() / 100;
 	}
 }

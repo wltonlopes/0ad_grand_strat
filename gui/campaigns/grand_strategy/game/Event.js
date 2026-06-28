@@ -30,6 +30,8 @@ class GSEvent
 			return new GSConquest();
 		else if (data.type === "attack")
 			return new GSAttack();
+		else if (data.type === "revolt")
+			return new GSRevolt();
 		else if (data.type === "insult")
 			return new GSInsult();
 		else if (data.type === "diploStatusChange")

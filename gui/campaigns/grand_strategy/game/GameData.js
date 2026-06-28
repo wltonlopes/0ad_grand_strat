@@ -509,13 +509,20 @@ class GameData
 				let tribe = this.tribes[tribeCode];
 				let totalBalance = 0;
 				for (let provinceCode of tribe.controlledProvinces)
-					totalBalance += this.provinces[provinceCode].getBalance();
+				{
+					let province = this.provinces[provinceCode];
+					// Apply happiness tax rate modifier
+					totalBalance += province.getBalance() * province.getTaxRate();
+				}
 				// Clamp to avoid weirdness.
 				tribe.money = Math.max(-999999, Math.min(tribe.money + totalBalance, 999999999));
 				tribe.lastBalance = totalBalance;
 				this.processTradeIncome();
 				// TODO: nasty events if in debt, possibly losing the game.
 			}
+
+			// Process happiness and revolts
+			this.processProvinceHappiness();
 		}
 		else if (this.turnI === 5)
 		{
@@ -1019,5 +1026,81 @@ killGeneral(hero)
 	{
 		// Temporário
 		return true;
+	}
+
+	processProvinceHappiness()
+	{
+		for (const provinceCode in this.provinces)
+		{
+			const province = this.provinces[provinceCode];
+
+			if (!province.ownerTribe)
+				continue; // Skip unowned provinces
+
+			let happinessChange = 0;
+			const tribe = this.tribes[province.ownerTribe];
+
+			// Provinces naturally drift towards 50 happiness (neutral)
+			const neutralHappiness = 50;
+			happinessChange -= (province.getHappiness() - neutralHappiness) * 0.05;
+
+			// Garrison presence increases happiness (security)
+			happinessChange += province.garrison * 2;
+
+			// Check if tribe has a hero in this province
+			let hasHero = false;
+			for (const hero of tribe.generals)
+			{
+				if (hero.location === provinceCode)
+				{
+					hasHero = true;
+					break;
+				}
+			}
+			if (hasHero)
+				happinessChange += 5; // Hero presence increases happiness
+
+			// War status decreases happiness
+			let isAtWar = false;
+			for (const otherTribeCode in tribe.diplo)
+			{
+				const diplo = tribe.diplo[otherTribeCode];
+				if (diplo.status === diplo.WAR)
+				{
+					isAtWar = true;
+					break;
+				}
+			}
+			if (isAtWar)
+				happinessChange -= 3; // War decreases happiness
+
+			// Trade treaties increase happiness (prosperity)
+			let tradePartners = 0;
+			for (const otherTribeCode in tribe.diplo)
+			{
+				const diplo = tribe.diplo[otherTribeCode];
+				if (diplo.treaties?.trade)
+					tradePartners++;
+			}
+			happinessChange += tradePartners * 1; // Each trade partner +1 happiness
+
+			// Apply the change
+			province.changeHappiness(happinessChange);
+
+			// Check for revolts (happiness < 20)
+			if (province.getHappiness() < 20 && !province.inRevolt)
+			{
+				// Create revolt event
+				const revoltEvent = new GSRevolt({
+					"province": provinceCode
+				});
+				this.turnEvents.push(revoltEvent);
+				province.inRevolt = true; // Prevent multiple revolts same turn
+			}
+			else if (province.getHappiness() >= 40)
+			{
+				province.inRevolt = false; // Reset revolt flag if happiness recovers
+			}
+		}
 	}
 }
