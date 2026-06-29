@@ -7,7 +7,7 @@ function loadNation(controller)
 
     Engine.GetGUIObjectByName("tribeEmblem").sprite =
         "stretched:session/portraits/emblems/emblem_" +
-        info.civ;
+        info.civ+".png";
 
     Engine.GetGUIObjectByName("tribeCulture").caption =
         "Culture: " + info.culture;

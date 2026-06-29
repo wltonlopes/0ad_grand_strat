@@ -81,30 +81,12 @@ autoResolve()
 
 	let stillAlive = false;
 
-	let playerOwned = 0;
-
-	for (let code in g_GameData.provinces)
+	province.setOwner(this.data.attacker);
+	
+	if (g_GameData.checkGameOver())
 	{
-		if (g_GameData.provinces[code].ownerTribe == g_GameData.playerTribe)
-			playerOwned++;
-	}
-
-	if (playerOwned == 0)
-	{
-		SwitchGuiPage(
-			"campaigns/grand_strategy/gameover/page.xml",
-			{
-				"title": "Defeat",
-				"message":
-					"Your kingdom has fallen.\n\n" +
-					"You survived " +
-					g_GameData.turn +
-					" turns."
-			}
-		);
-
+		this.processed = true;
 		return;
-
 	}
 
 	this.processed = true;

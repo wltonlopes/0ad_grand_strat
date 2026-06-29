@@ -1103,4 +1103,36 @@ killGeneral(hero)
 			}
 		}
 	}
+
+	hasPlayerLost()
+	{
+		const player =
+			this.tribes[this.playerTribe];
+
+		// Sem território = derrota
+		if (player.controlledProvinces.length > 0)
+			return false;
+
+		return true;
+	}
+
+	checkGameOver()
+	{
+		if (!this.hasPlayerLost())
+			return false;
+
+		if (typeof g_CampaignMenu != "undefined" &&
+			g_CampaignMenu)
+		{
+			g_CampaignMenu.showGameOver(
+				"Defeat",
+				"Your kingdom has fallen.\n\n" +
+				"You survived " +
+				this.turn +
+				" turns."
+			);
+		}
+
+		return true;
+	}
 }

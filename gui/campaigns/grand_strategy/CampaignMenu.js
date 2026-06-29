@@ -1,14 +1,17 @@
 /**
  */
+var g_CampaignMenu = undefined;
 class CampaignMenu extends AutoWatcher
 {
 	constructor(run, closePageCallback)
 	{
 		super("render");
+		g_CampaignMenu = this;
 		this.run = run;
 		this.closePageCallback = closePageCallback;
 
 		this.selectedProvince = -1;
+		
 
 		this.window = Engine.GetGUIObjectByName("campaignMenuWindow");
 		this.window.onTick = () => this.onTick();
@@ -469,19 +472,59 @@ class CampaignMenu extends AutoWatcher
 		else
 		{
 			const actions = g_GameData.tribes[g_GameData.playerTribe].getDiplomacy(g_GameData.provinces[code].ownerTribe).getActions();
-			let i = 1;
-			for (const key in actions)
+			
+
+		let i = 1;
+
+		for (const key in actions)
+		{
+			// Só existem os botões 0..4
+			if (i >= 5)
 			{
-				Engine.GetGUIObjectByName(`contextPanelButton[${i}]`).enabled = actions[key];
-				Engine.GetGUIObjectByName(`contextPanelButton[${i}]`).hidden = false;
-				Engine.GetGUIObjectByName(`contextPanelButton[${i}]`).onPress = () => {
-					this.displayContextualPanel(-1);
-					const ev = g_GameData.tribes[g_GameData.playerTribe].getDiplomacy(g_GameData.provinces[code].ownerTribe)[key]();
-					g_GameData.pushTurnEvent(ev);
-				};
-				Engine.GetGUIObjectByName(`contextPanelButton[${i}]`).caption = key;
-				++i;
+				warn("Too many diplomacy actions, ignoring: " + key);
+				break;
 			}
+
+			let button =
+				Engine.TryGetGUIObjectByName(
+					`contextPanelButton[${i}]`
+				);
+
+			if (!button)
+				break;
+
+			button.enabled = actions[key];
+			button.hidden = false;
+
+			button.onPress = () =>
+			{
+				this.displayContextualPanel(-1);
+
+				const ev =
+					g_GameData.tribes[g_GameData.playerTribe]
+						.getDiplomacy(
+							g_GameData.provinces[code].ownerTribe
+						)[key]();
+
+				g_GameData.pushTurnEvent(ev);
+			};
+
+			button.caption = key;
+
+			++i;
+		}
+
+		for (; i < 5; ++i)
+		{
+			let button =
+				Engine.TryGetGUIObjectByName(
+					`contextPanelButton[${i}]`
+				);
+
+			if (button)
+				button.hidden = true;
+		}
+
 		}
 		for (let i = 0; i < 5; ++i)
 			Engine.GetGUIObjectByName(`contextPanelButton[${i}]`).size = `0 ${i*20} 100% ${(i+1)*20}`;
@@ -829,6 +872,32 @@ displayEnemyGeneral(hero)
 			`Actions Left: ${hero.actionsLeft}`;
 
 		warn(text);
+	}
+	showGameOver(title, message)
+	{
+		Engine.GetGUIObjectByName(
+			"gameOverWindow"
+		).hidden = false;
+
+		Engine.GetGUIObjectByName(
+			"title"
+		).caption = title;
+
+		Engine.GetGUIObjectByName(
+			"message"
+		).caption = message;
+
+		Engine.GetGUIObjectByName(
+			"newCampaignButton"
+		).onPress = () =>
+		{
+			this.closePageCallback({
+				[Engine.openRequest]:
+				{
+					page: "campaigns/grand_strategy/init/page.xml"
+				}
+			});
+		};
 	}
 
 }
