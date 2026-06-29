@@ -180,7 +180,7 @@
 			hidden="true"
 			z="1001"
 			type="image"
-			sprite="stretched:campaigns/grand_strategy/art/world_map.png"
+			sprite="stretched:campaigns/grand_strategy/art/windows_background_02.png"
 			size="5% 5% 95% 95%">
 
 			<object
@@ -406,7 +406,7 @@
 			hidden="true"
 			type="image"
 			z="500"
-			sprite="campaignBackground"
+			sprite="stretched:campaigns/grand_strategy/art/windows_background_01.png"
 			size="0 0 100% 100%"
 			name="gameOverWindow">
 
