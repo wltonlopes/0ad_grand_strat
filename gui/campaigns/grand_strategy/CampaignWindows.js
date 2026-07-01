@@ -6,15 +6,24 @@ class CampaignWindows
         this.Province = new ProvinceDetailsWindow(menu);
         this.Tribe = new TribeDetailsWindow(menu);
         this.Hero = new HeroDetailsWindow(menu);
-        this.Diplomacy = new DiplomacyWindow(menu);
-        this.Event = new EventWindow(menu);
-        this.GameOver = new GameOverWindow(menu);
+        this.Diplomacy = typeof DiplomacyWindow !== "undefined" ? new DiplomacyWindow(menu) : null;
+        this.Event = typeof EventWindow !== "undefined" ? new EventWindow(menu) : null;
+        this.GameOver = typeof GameOverWindow !== "undefined" ? new GameOverWindow(menu) : null;
     }
 
     render()
     {
-        this.Hero.render();
-        this.Province.render();
-        this.Tribe.render();
+        if (this.Hero?.render)
+            this.Hero.render();
+
+        if (this.Province?.render)
+            this.Province.render();
+        else if (this.Province?.display)
+            this.Province.display();
+
+        if (this.Tribe?.render)
+            this.Tribe.render();
+        else if (this.Tribe?.display)
+            this.Tribe.display();
     }
 }

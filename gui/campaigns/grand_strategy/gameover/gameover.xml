@@ -23,7 +23,42 @@
 					name="message"
 					type="text"
 					style="ModernLabelText"
-					size="32 64 100%-32 100%-96"/>
+					size="32 64 100%-32 140"/>
+
+				<object type="text" style="ModernLabelText" size="40 150 220 182">
+					<translatableAttribute id="caption">Turns</translatableAttribute>
+				</object>
+				<object name="turnsValue" type="text" style="ModernLabelText" size="220 150 320 182"/>
+
+				<object type="text" style="ModernLabelText" size="40 190 220 222">
+					<translatableAttribute id="caption">Gold earned</translatableAttribute>
+				</object>
+				<object name="goldValue" type="text" style="ModernLabelText" size="220 190 320 222"/>
+
+				<object type="text" style="ModernLabelText" size="40 230 220 262">
+					<translatableAttribute id="caption">Battles</translatableAttribute>
+				</object>
+				<object name="battlesValue" type="text" style="ModernLabelText" size="220 230 320 262"/>
+
+				<object type="text" style="ModernLabelText" size="40 270 220 302">
+					<translatableAttribute id="caption">Biggest enemy</translatableAttribute>
+				</object>
+				<object name="enemyValue" type="text" style="ModernLabelText" size="220 270 420 302"/>
+
+				<object type="text" style="ModernLabelText" size="40 310 220 342">
+					<translatableAttribute id="caption">Score</translatableAttribute>
+				</object>
+				<object name="scoreValue" type="text" style="ModernLabelText" size="220 310 320 342"/>
+
+				<object type="text" style="ModernLabelText" size="40 350 220 382">
+					<translatableAttribute id="caption">Defeat reason</translatableAttribute>
+				</object>
+				<object name="reasonValue" type="text" style="ModernLabelText" size="220 350 520 382"/>
+
+				<object type="text" style="ModernLabelText" size="50%+40 140 100%-40 172">
+					<translatableAttribute id="caption">Campaign history</translatableAttribute>
+				</object>
+				<object name="timelineList" type="list" style="ModernLabelText" size="50%+40 180 100%-40 100%-96"/>
 
 				<object
 					name="newCampaignButton"

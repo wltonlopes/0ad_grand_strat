@@ -21,6 +21,13 @@
 	<script file="gui/campaigns/grand_strategy/EventPanel.js"/>
 	<script file="gui/campaigns/grand_strategy/InfoTicker.js"/>
 	<script file="gui/campaigns/grand_strategy/GeneralRecruitment.js"/>
+	<script file="gui/campaigns/grand_strategy/CampaignStatistics.js"/>
+	<script file="gui/campaigns/grand_strategy/windows/ContextWindow.js"/>
+	<script file="gui/campaigns/grand_strategy/windows/ProvinceWindow.js"/>
+	<script file="gui/campaigns/grand_strategy/windows/TribeWindow.js"/>
+	<script file="gui/campaigns/grand_strategy/windows/HeroWindow.js"/>
+	<script file="gui/campaigns/grand_strategy/windows/DiplomacyWindow.js"/>
+	<script file="gui/campaigns/grand_strategy/CampaignWindows.js"/>
 	<script file="gui/campaigns/grand_strategy/CampaignMenu.js"/>
 
 	<script file="gui/campaigns/grand_strategy/diplomacy/DiplomacyController.js"/>
@@ -120,6 +127,13 @@
 			<!-- Info ticker -->
 			<object name="infoTicker" size="50%-300 100%-140 50%+300 100%" type="image" sprite="panelShader">
 				<object name="infoTickerData" type="list" style="InfoTickerList" size = "0 0 100% 100%"/>
+			</object>
+
+			<object name="campaignStatsPanel" size="100%-320 100%-140 100%-20 100%" type="image" sprite="panelShader">
+				<object type="text" style="ModernLabelText" size="10 8 100%-10 34">
+					<translatableAttribute id="caption">Campaign History</translatableAttribute>
+				</object>
+				<object name="campaignStatsList" type="list" style="InfoTickerList" size="10 40 100%-10 100%-10"/>
 			</object>
 
 			<!-- Contextual panel -->

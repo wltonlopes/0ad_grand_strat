@@ -22,6 +22,7 @@ class CampaignMenu extends AutoWatcher
 
 		this.infoTicker = new InfoTicker();
 		this.eventPanel = new EventPanel();
+		this.windows = new CampaignWindows(this);
 
 		Engine.GetGUIObjectByName("campaignMenuWindow").onMouseLeftPress = () => this.onBlur();
 		Engine.GetGUIObjectByName("campaignMenuWindow").onMouseRightPress = () => this.onBlur();
@@ -184,350 +185,27 @@ class CampaignMenu extends AutoWatcher
 
 	displayProvinceDetails()
 	{
-		if (this.selectedProvince === -1 ||
-			!Engine.GetGUIObjectByName("tribeDetails").hidden)
-		{
-			Engine.GetGUIObjectByName(
-				"provinceDetails"
-			).hidden = true;
-			return;
-		}
-
-		const province =
-			g_GameData.provinces[
-				this.selectedProvince
-			];
-
-		const tribe =
-			g_GameData.tribes[
-				g_GameData.playerTribe
-			];
-
-		const infoLevel =
-			province.getInfoLevel(
-				g_GameData.playerTribe
-			);
-
-		Engine.GetGUIObjectByName(
-			"provinceDetails"
-		).hidden = false;
-
-		let str =
-			`Name: ${province.name}\n` +
-			`Owner: ${
-				g_GameData.tribes?.[
-					province.ownerTribe
-				]?.getName()
-				|| "No-one"
-			}\n`;
-
-		if (infoLevel >= 1)
-			str +=
-				`Garrison strength: ${
-					province.garrison
-				}\n`;
-
-		if (infoLevel >= 2)
-			str +=
-				`Balance: ${
-					province.getBalance()
-				}\n`;
-
-		// Informações dos generais
-		str +=
-			`\nGenerals: ${
-				tribe.generals.length
-			}/${tribe.maxGenerals}\n`;
-
-		str +=
-			`\n\n` +
-			coloredText(
-				"Right-click the province to make actions",
-				"green"
-			);
-
-		Engine.GetGUIObjectByName(
-			"provinceDetailsText"
-		).caption = str;
-
-		// Botão do dono da província
-		const ownerBtn =
-			Engine.GetGUIObjectByName(
-				"provinceOwnerButton"
-			);
-
-		if (
-			province.ownerTribe &&
-			province.ownerTribe !== g_GameData.playerTribe
-		)
-		{
-			ownerBtn.enabled = true;
-
-			ownerBtn.onPress = () =>
-			{
-				this.openDiplomacy(
-					province.ownerTribe
-				);
-			};
-
-			const ownerTribe =
-				g_GameData.tribes[
-					province.ownerTribe
-				];
-
-			const civ =
-				ownerTribe?.civ ||
-				ownerTribe?.data?.civ;
-
-			ownerBtn.sprite =
-				`stretched:session/portraits/emblems/emblem_${civ}.png`;
-		}
-		else
-		{
-			ownerBtn.enabled = false;
-
-			ownerBtn.sprite =
-				"grayscale:stretched:session/portraits/emblems/emblem_gaia.png";
-		}
-
-		// ---------------------------
-		// Train General button
-		// ---------------------------
-
-		const trainBtn =
-			Engine.TryGetGUIObjectByName(
-				"trainGeneral"
-			);
-
-		if (!trainBtn)
-			return;
-
-		trainBtn.hidden = true;
-
-		const GENERAL_COST = 500;
-
-		if (
-			this.selectedProvince ===
-			tribe.getCapital()
-		)
-		{
-			trainBtn.hidden = false;
-
-			trainBtn.caption =
-				`Train General (${GENERAL_COST})`;
-
-			trainBtn.enabled =
-				tribe.money >= GENERAL_COST &&
-				tribe.generals.length <
-					tribe.maxGenerals;
-
-			trainBtn.onPress = () =>
-			{
-				let hero =
-					g_GameData.recruitGeneral(
-						g_GameData.playerTribe
-					);
-
-				if (!hero)
-					return;
-
-				g_GameData.playerHero =
-					hero;
-
-				g_GameData.save();
-
-				this.centerScrollOnHero();
-				this.render();
-			};
-		}
+		this.windows.Province.display();
 	}
 
 	openDiplomacy(tribeCode)
 	{
-		if (tribeCode === g_GameData.playerTribe)
-		{
-			warn("Cannot open diplomacy with ourselves");
-			return;
-		}
-
-		if (!g_GameData.tribes[tribeCode])
-		{
-			warn("Cannot open diplomacy: unknown tribe " + tribeCode);
-			return;
-		}
-
-		this.diplomacyController =
-			new DiplomacyController(
-				this,
-				tribeCode
-			);
-
-		Engine.GetGUIObjectByName("diplomacyMainPanel").hidden = false;
-		Engine.GetGUIObjectByName(
-			"diplomacyWindow"
-		).hidden = false;
+		this.windows.Diplomacy.open(tribeCode);
 	}
 
 	displayTribeDetails(tribeCode)
 	{
-		if (tribeCode === -1)
-		{
-			Engine.GetGUIObjectByName("tribeDetails").hidden = true;
-			return;
-		}
-		Engine.GetGUIObjectByName("tribeDetails").hidden = false;
-
-		const tribe = g_GameData.tribes[tribeCode];
-
-		let diploStr = "";
-		if (tribeCode !== g_GameData.playerTribe)
-		{
-			const diplo = tribe.getDiplomacy(g_GameData.playerTribe);
-			diploStr = `Opinion: ${diplo.opinion}\nStatus: ${diplo.status}`;
-		}
-
-		Engine.GetGUIObjectByName("tribeDetailsText").caption = `` +
-		`Name: ${tribe.data.name}\n` +
-		`Money: ${tribe.money}\n` +
-		`Diplo: ${diploStr}\n` +
-		``;
-
-		Engine.GetGUIObjectByName("goToProvinceButton").onPress = () => {
-			this.displayTribeDetails(-1);
-			this.displayProvinceDetails();
-		};
+		this.windows.Tribe.display(tribeCode);
 	}
 
 	displayHeroDetails()
 	{
-		Engine.GetGUIObjectByName("heroDetailsText").caption = `` +
-		`Moves left: ${g_GameData.playerHero.actionsLeft}\n` +
-		`Location: ${g_GameData.provinces[g_GameData.playerHero.location].name}\n` +
-		`Owner: ${g_GameData.provinces[g_GameData.playerHero.location].ownerTribe || "No-one" }\n`;
-		let province = g_GameData.provinces[g_GameData.playerHero.location];
-
-		Engine.GetGUIObjectByName("doAttack").enabled = g_GameData.playerHero.canAttack(province.code);
-		Engine.GetGUIObjectByName("doAttack").onPress = () =>
-		{
-			const battle =
-				g_GameData.playerHero.doAttack(province.code);
-
-			if (!battle)
-				return;
-
-			this.closePageCallback({
-				[Engine.openRequest]:
-				{
-					page: "page_loading.xml",
-					argument: battle
-				}
-			});
-		};
-
-		Engine.GetGUIObjectByName("strengthenGarrison").enabled = g_GameData.playerHero.canStrengthen(province.code);
-		Engine.GetGUIObjectByName("weakenGarrison").enabled = g_GameData.playerHero.canWeaken(province.code);
-		Engine.GetGUIObjectByName("strengthenGarrison").onPress = () => g_GameData.playerHero.doStrengthen(province.code);
-		Engine.GetGUIObjectByName("weakenGarrison").onPress = () => g_GameData.playerHero.doWeaken(province.code);
+		this.windows.Hero.render();
 	}
 
 	displayContextualPanel(code)
 	{
-		if (code === -1)
-		{
-			Engine.GetGUIObjectByName("contextPanel").hidden = true;
-			return;
-		}
-		this.selectedProvince = code;
-
-		// const mx = this.mouseX ?? 0;
-		// const my = this.mouseY ?? 0;
-
-		// const pos = [
-		// 	mx / this.zoom + this.cameraX,
-		// 	my / this.zoom + this.cameraZ
-		// ];
-
-		const pos = [
-			(this.mouseX || 0) / this.zoom + this.cameraX,
-			(this.mouseY || 0) / this.zoom + this.cameraZ
-		];
-		Engine.GetGUIObjectByName("contextPanel").size = this.toGUISize(...pos, pos[0] + 175, pos[1] + 140);
-		Engine.GetGUIObjectByName("contextPanel").hidden = false;
-
-		// Move there button.
-		Engine.GetGUIObjectByName("contextPanelButton[0]").hidden = false;
-		Engine.GetGUIObjectByName("contextPanelButton[0]").enabled =
-			g_GameData.playerHero.canMove(code) &&
-			code !== g_GameData.playerHero.location;
-		Engine.GetGUIObjectByName("contextPanelButton[0]").onPress = () => {
-			g_GameData.playerHero.doMove(code);
-			this.displayContextualPanel(-1);
-		};
-		Engine.GetGUIObjectByName("contextPanelButton[0]").caption = "Move there";
-		if (!g_GameData.provinces[code].ownerTribe || g_GameData.provinces[code].ownerTribe === g_GameData.playerTribe)
-		{
-			for (let i = 1; i < 5; ++i)
-				Engine.GetGUIObjectByName(`contextPanelButton[${i}]`).hidden = true;
-		}
-		else
-		{
-			const actions = g_GameData.tribes[g_GameData.playerTribe].getDiplomacy(g_GameData.provinces[code].ownerTribe).getActions();
-			
-
-		let i = 1;
-
-		for (const key in actions)
-		{
-			// Só existem os botões 0..4
-			if (i >= 5)
-			{
-				warn("Too many diplomacy actions, ignoring: " + key);
-				break;
-			}
-
-			let button =
-				Engine.TryGetGUIObjectByName(
-					`contextPanelButton[${i}]`
-				);
-
-			if (!button)
-				break;
-
-			button.enabled = actions[key];
-			button.hidden = false;
-
-			button.onPress = () =>
-			{
-				this.displayContextualPanel(-1);
-
-				const ev =
-					g_GameData.tribes[g_GameData.playerTribe]
-						.getDiplomacy(
-							g_GameData.provinces[code].ownerTribe
-						)[key]();
-
-				g_GameData.pushTurnEvent(ev);
-			};
-
-			button.caption = key;
-
-			++i;
-		}
-
-		for (; i < 5; ++i)
-		{
-			let button =
-				Engine.TryGetGUIObjectByName(
-					`contextPanelButton[${i}]`
-				);
-
-			if (button)
-				button.hidden = true;
-		}
-
-		}
-		for (let i = 0; i < 5; ++i)
-			Engine.GetGUIObjectByName(`contextPanelButton[${i}]`).size = `0 ${i*20} 100% ${(i+1)*20}`;
+		this.windows.Context.display(code);
 	}
 
 	render()
@@ -565,8 +243,16 @@ class CampaignMenu extends AutoWatcher
 		` Balance ${g_GameData.tribes[g_GameData.playerTribe].lastBalance}` +
 		``;
 
-		this.displayHeroDetails();
-		this.displayProvinceDetails();
+		this.windows.render();
+
+		const stats = g_CampaignStatistics?.GetData?.() || g_GameData?.statistics?.GetData?.() || {};
+		const historyList = Engine.TryGetGUIObjectByName("campaignStatsList");
+		if (historyList)
+		{
+			historyList.list = [];
+			for (const entry of stats.timeline || [])
+				historyList.list.push(`${entry.turn} - ${entry.text}`);
+		}
 
 		const visible = new Set();
 

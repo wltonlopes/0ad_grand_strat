@@ -25,6 +25,7 @@ class GameData
 
 		this.turnI = 0;
 		this.turnEvents = [];
+		this.statistics = undefined;
 
 		this.mapTypes = new MapTypes();
 
@@ -57,6 +58,7 @@ class GameData
 
 		return {
 			"turn": this.turn,
+			"statistics": this.statistics?.Serialize?.() || g_CampaignStatistics?.GetData?.(),
 			"playerTribe": this.playerTribe,
 			"playerHeroID": this.playerHero?.id,
 			"difficulty": this.difficulty,
@@ -129,6 +131,13 @@ class GameData
 
 		if (data.difficulty)
 			this.difficulty = data.difficulty;
+
+		this.statistics = new CampaignStatisticsManager();
+		this.statistics.Deserialize(data.statistics);
+		if (typeof g_CampaignStatistics === "undefined")
+			g_CampaignStatistics = this.statistics;
+		else
+			g_CampaignStatistics.Deserialize(data.statistics);
 
 		this.pastTurnEvents = [];
 		for (const evs of data.events)
@@ -283,6 +292,9 @@ class GameData
 			);
 		}
 
+		CampaignStatisticsInit();
+		this.statistics = g_CampaignStatistics;
+		this.statistics.RegisterEvent("Campaign started");
 		this.save();
 	}
 
@@ -666,6 +678,7 @@ class GameData
 		{
 			// End of turn, control will be returned to the player.
 			this.turn++;
+			this.statistics?.NextTurn?.();
 
 		// Atualiza estatísticas das tribos
 			for (const code in this.tribes)
@@ -844,6 +857,8 @@ startGeneralBattle(
 			return false;
 
 		player.money -= cost;
+		this.statistics?.AddGold?.(-cost);
+		this.statistics?.ArmyRaised?.();
 
 		const capital =
 			player.getCapital();
@@ -957,6 +972,8 @@ killGeneral(hero)
 			this.armies.filter(
 				a => a.general != hero.id
 			);
+
+		this.statistics?.GeneralLost?.(hero.id);
 
 		warn(
 			"General died: " +
@@ -1120,6 +1137,9 @@ killGeneral(hero)
 	{
 		if (!this.hasPlayerLost())
 			return false;
+
+		this.statistics?.SetDefeatReason?.("No provinces remaining");
+		this.statistics?.FinalizeScore?.();
 
 		if (typeof g_CampaignMenu != "undefined" &&
 			g_CampaignMenu)

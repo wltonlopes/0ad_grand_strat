@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <objects>
+	<script file="gui/campaigns/grand_strategy/CampaignStatistics.js"/>
 	<script directory="gui/campaigns/grand_strategy/game/"/>
 
 	<script directory="gui/campaigns/grand_strategy/init/"/>
