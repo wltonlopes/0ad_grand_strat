@@ -67,6 +67,33 @@ class GSDiplomacy
 		};
 	}
 
+	shouldAcceptTradeProposal()
+	{
+		return !this.treaties.trade && this.status !== this.WAR && this.status !== this.HOSTILE && this.opinion >= 0 && this.trust >= 50;
+	}
+
+	shouldAcceptNonAggressionProposal()
+	{
+		return !this.treaties.nonAggression && this.status !== this.WAR && this.status !== this.HOSTILE && this.opinion >= 10 && this.trust >= 50;
+	}
+
+	shouldAcceptAllianceProposal()
+	{
+		if (this.treaties.alliance || this.status === this.WAR || this.status === this.HOSTILE)
+			return false;
+		if (this.opinion < 15)
+			return false;
+		if (!g_GameData)
+			return true;
+		const allianceCount = g_GameData.getAllianceCount(this.from);
+		if (allianceCount >= 2)
+			return false;
+		const otherTribe = g_GameData.tribes[this.target];
+		if (!otherTribe)
+			return false;
+		return g_GameData.canFormAlliance(this.from, this.target);
+	}
+
 	/**
 	 * This returns the possible response options to a diplomatic event.
 	 * Both AI and players will have the same instant options.
@@ -111,6 +138,102 @@ class GSDiplomacy
 					g_GameData.pushTurnEvent(oDiplo.makePeace(ev.data.from));
 				}, "Both tribes will be at peace and opinion is reset.")
 			];
+		}
+		else if (ev.type === "tradeProposal")
+		{
+			const shouldAccept = this.shouldAcceptTradeProposal();
+			if (this.from === g_GameData.playerTribe)
+				return [
+					this.makeResponse(ev, "refuse", () => {
+						this.opinion -= 10;
+						ev.data.accepted = false;
+						ev.data.resolved = true;
+					}, "Trade proposal refused"),
+					this.makeResponse(ev, "accept_trade", () => {
+						this.acceptTrade();
+						ev.data.accepted = true;
+						ev.data.resolved = true;
+						const oDiplo = g_GameData.tribes[ev.data.from].getDiplomacy(ev.data.target);
+						if (oDiplo)
+							oDiplo.acceptTrade();
+					}, "A commercial treaty is now active.")
+				];
+			return [shouldAccept ? this.makeResponse(ev, "accept_trade", () => {
+				this.acceptTrade();
+				ev.data.accepted = true;
+				ev.data.resolved = true;
+				const oDiplo = g_GameData.tribes[ev.data.from].getDiplomacy(ev.data.target);
+				if (oDiplo)
+					oDiplo.acceptTrade();
+			}, "A commercial treaty is now active.") : this.makeResponse(ev, "refuse", () => {
+				this.opinion -= 10;
+				ev.data.accepted = false;
+				ev.data.resolved = true;
+			}, "Trade proposal refused")];
+		}
+		else if (ev.type === "nonAggressionProposal")
+		{
+			const shouldAccept = this.shouldAcceptNonAggressionProposal();
+			if (this.from === g_GameData.playerTribe)
+				return [
+					this.makeResponse(ev, "refuse", () => {
+						this.opinion -= 10;
+						ev.data.accepted = false;
+						ev.data.resolved = true;
+					}, "Non-aggression pact refused"),
+					this.makeResponse(ev, "accept_nap", () => {
+						this.acceptNonAggression();
+						ev.data.accepted = true;
+						ev.data.resolved = true;
+						const oDiplo = g_GameData.tribes[ev.data.from].getDiplomacy(ev.data.target);
+						if (oDiplo)
+							oDiplo.acceptNonAggression();
+					}, "A non-aggression pact is now active.")
+				];
+			return [shouldAccept ? this.makeResponse(ev, "accept_nap", () => {
+				this.acceptNonAggression();
+				ev.data.accepted = true;
+				ev.data.resolved = true;
+				const oDiplo = g_GameData.tribes[ev.data.from].getDiplomacy(ev.data.target);
+				if (oDiplo)
+					oDiplo.acceptNonAggression();
+			}, "A non-aggression pact is now active.") : this.makeResponse(ev, "refuse", () => {
+				this.opinion -= 10;
+				ev.data.accepted = false;
+				ev.data.resolved = true;
+			}, "Non-aggression pact refused")];
+		}
+		else if (ev.type === "allianceProposal")
+		{
+			const shouldAccept = this.shouldAcceptAllianceProposal();
+			if (this.from === g_GameData.playerTribe)
+				return [
+					this.makeResponse(ev, "refuse", () => {
+						this.opinion -= 15;
+						ev.data.accepted = false;
+						ev.data.resolved = true;
+					}, "Alliance proposal refused"),
+					this.makeResponse(ev, "accept_alliance", () => {
+						this.acceptAlliance();
+						ev.data.accepted = true;
+						ev.data.resolved = true;
+						const oDiplo = g_GameData.tribes[ev.data.from].getDiplomacy(ev.data.target);
+						if (oDiplo)
+							oDiplo.acceptAlliance();
+					}, "An alliance is now active.")
+				];
+			return [shouldAccept ? this.makeResponse(ev, "accept_alliance", () => {
+				this.acceptAlliance();
+				ev.data.accepted = true;
+				ev.data.resolved = true;
+				const oDiplo = g_GameData.tribes[ev.data.from].getDiplomacy(ev.data.target);
+				if (oDiplo)
+					oDiplo.acceptAlliance();
+			}, "An alliance is now active.") : this.makeResponse(ev, "refuse", () => {
+				this.opinion -= 15;
+				ev.data.accepted = false;
+				ev.data.resolved = true;
+			}, "Alliance proposal refused")];
 		}
 		return [];
 	}
@@ -230,8 +353,31 @@ class GSDiplomacy
 	{
 		return new GSTradeProposal({
 			from: this.from,
-			target: this.target
+			target: this.target,
+			accepted: null,
+			resolved: false,
 		});
+	}
+
+	acceptTrade()
+	{
+		this.treaties.trade = true;
+		this.opinion += 10;
+		return this;
+	}
+
+	acceptAlliance()
+	{
+		this.treaties.alliance = true;
+		this.opinion += 15;
+		return this;
+	}
+
+	acceptNonAggression()
+	{
+		this.treaties.nonAggression = true;
+		this.opinion += 8;
+		return this;
 	}
 
 	proposeNonAggression()

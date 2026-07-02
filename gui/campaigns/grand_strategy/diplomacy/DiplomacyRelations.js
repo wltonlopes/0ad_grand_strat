@@ -1,6 +1,6 @@
 function loadRelations(controller)
 {
-	let diplo = controller.player.getDiplomacy(controller.target.code);
+	const diplo = controller.target.getDiplomacy(controller.player.code);
 
 	Engine.GetGUIObjectByName("relationStatus").caption =
 		"Status: " + diplo.status;

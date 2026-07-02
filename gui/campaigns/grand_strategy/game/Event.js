@@ -42,7 +42,8 @@ class GSEvent
 			return new GSPeaceAccepted();
 		else if (data.type === "allianceProposal")
 			return new GSAllianceProposal();
-
+		else if (data.type === "tradeProposal")
+			return new GSTradeProposal();
 		else if (data.type === "nonAggressionProposal")
 			return new GSNonAggressionProposal();
 		error("Unknown event type " + data.type);

@@ -559,20 +559,31 @@ class GameData
 				{
 					const diplo = tribe.getDiplomacy(neighb);
 					let ev;
-					if (diplo.status === diplo.PEACE)
+					if (diplo.treaties?.alliance && !diplo.treaties?.trade)
 					{
-						// Go hostile then to war
-						if (diplo.opinion < -30 && randBool(0.33))
+						const alliedDiplo = this.tribes[neighb]?.getDiplomacy(code);
+						if (alliedDiplo)
+						{
+							diplo.acceptTrade();
+							alliedDiplo.acceptTrade();
+						}
+						continue;
+					}
+					if (neighb && neighb !== this.playerTribe && neighb !== code && !diplo.treaties?.alliance && this.canFormAlliance(code, neighb) && this.hasMutualEnemy(code, neighb) && randBool(0.15))
+						ev = diplo.proposeAlliance();
+					else if (diplo.status === diplo.PEACE)
+					{
+						if (!diplo.treaties.trade && diplo.opinion >= 0 && randBool(0.2))
+							ev = diplo.proposeTrade();
+						else if (!diplo.treaties.nonAggression && diplo.opinion >= 10 && randBool(0.1))
+							ev = diplo.proposeNonAggression();
+						else if (diplo.opinion < -30 && randBool(0.33))
 							ev = diplo.goHostile();
-						// Randomly decide we don't like some people.
-						// (NB: this will end up being _all_ people after a while)
 						else if (diplo.opinion > -30 && randBool(0.2))
 							ev = diplo.insult();
 					}
-					// Every turn 50% chance of hostility breaking out into war.
 					else if (diplo.status === diplo.HOSTILE && randBool(0.5))
 						ev = diplo.declareWar();
-					// else 10% chance of going at war
 					else if (diplo.status === diplo.WAR && randBool(0.1))
 						ev = diplo.proposePeace();
 					if (ev)
@@ -755,9 +766,19 @@ class GameData
 	{
 		this.turnEvents.push(event);
 		if (event.data.target !== this.playerTribe)
-			pickRandom(g_GameData.tribes[event.data.target]?.getDiplomacy(event.data.from).getResponses(event))?.action?.();
+		{
+			const response = pickRandom(g_GameData.tribes[event.data.target]?.getDiplomacy(event.data.from).getResponses(event));
+			response?.action?.();
+			if (event.type === "tradeProposal" && event.data.resolved !== true)
+			{
+				event.data.resolved = true;
+				event.data.accepted = false;
+			}
+			event.processed = true;
+		}
 		// TODO: unhack this
 		// g_CampaignMenu.infoTicker.initialise();
+		return event;
 	}
 
 	canAdvanceTurn()
@@ -1017,6 +1038,88 @@ killGeneral(hero)
 		}
 
 		return null;
+	}
+
+	getAllianceCount(tribeCode)
+	{
+		const tribe = this.tribes[tribeCode];
+		if (!tribe)
+			return 0;
+		let count = 0;
+		for (const other in tribe.diplo)
+		{
+			const diplo = tribe.diplo[other];
+			if (diplo?.treaties?.alliance)
+				count++;
+		}
+		return count;
+	}
+
+	getAllianceBlocSize(tribeCode)
+	{
+		const tribe = this.tribes[tribeCode];
+		if (!tribe)
+			return 0;
+		const visited = new Set();
+		const stack = [tribeCode];
+		while (stack.length)
+		{
+			const current = stack.pop();
+			if (visited.has(current))
+				continue;
+			visited.add(current);
+			const currentTribe = this.tribes[current];
+			if (!currentTribe)
+				continue;
+			for (const other in currentTribe.diplo)
+			{
+				const diplo = currentTribe.diplo[other];
+				if (diplo?.treaties?.alliance && !visited.has(other))
+					stack.push(other);
+			}
+		}
+		return visited.size;
+	}
+
+	canFormAlliance(tribeA, tribeB)
+	{
+		if (!this.tribes[tribeA] || !this.tribes[tribeB])
+			return false;
+		if (tribeA === tribeB || tribeA === this.playerTribe || tribeB === this.playerTribe)
+			return false;
+		const diploA = this.tribes[tribeA].getDiplomacy(tribeB);
+		const diploB = this.tribes[tribeB].getDiplomacy(tribeA);
+		if (diploA.treaties?.alliance || diploB.treaties?.alliance)
+			return false;
+		if (this.getAllianceCount(tribeA) >= 2 || this.getAllianceCount(tribeB) >= 2)
+			return false;
+		if (this.getAllianceBlocSize(tribeA) + this.getAllianceBlocSize(tribeB) > 3)
+			return false;
+		return diploA.status === diploA.PEACE && diploB.status === diploB.PEACE && diploA.opinion >= 10 && diploB.opinion >= 10;
+	}
+
+	hasMutualEnemy(tribeA, tribeB)
+	{
+		if (!this.tribes[tribeA] || !this.tribes[tribeB])
+			return false;
+		const enemiesA = new Set();
+		const enemiesB = new Set();
+		for (const other in this.tribes[tribeA].diplo)
+		{
+			const diplo = this.tribes[tribeA].diplo[other];
+			if (diplo?.status === diplo.WAR || diplo?.status === diplo.HOSTILE)
+				enemiesA.add(other);
+		}
+		for (const other in this.tribes[tribeB].diplo)
+		{
+			const diplo = this.tribes[tribeB].diplo[other];
+			if (diplo?.status === diplo.WAR || diplo?.status === diplo.HOSTILE)
+				enemiesB.add(other);
+		}
+		for (const enemy of enemiesA)
+			if (enemiesB.has(enemy))
+				return true;
+		return false;
 	}
 
 	processTradeIncome()

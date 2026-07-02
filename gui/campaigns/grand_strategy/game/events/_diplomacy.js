@@ -52,7 +52,17 @@ class GSAllianceProposal extends GSDiplomacyEvent
 
 	needUserInput()
 	{
-		return false;
+		return this.data.target === g_GameData.playerTribe;
+	}
+
+	setupPanel(descObj, buttons)
+	{
+		const str = "%(from)s wants to form an alliance with %(target)s."
+			+ "\nDo we accept?";
+		return super.setupPanel(descObj, buttons, sprintf(str, {
+			"from": g_GameData.tribes[this.data.from].getName(),
+			"target": g_GameData.tribes[this.data.target].getName(),
+		}), x => x.id === "accept_alliance" ? "Accept Alliance" : "Decline");
 	}
 
 	getTickerText()
@@ -70,7 +80,17 @@ class GSTradeProposal extends GSDiplomacyEvent
 
 	needUserInput()
 	{
-		return false;
+		return this.data.target === g_GameData.playerTribe;
+	}
+
+	setupPanel(descObj, buttons)
+	{
+		const str = "%(from)s wants to sign a trade agreement with %(target)s."
+			+ "\nDo we accept?";
+		return super.setupPanel(descObj, buttons, sprintf(str, {
+			"from": g_GameData.tribes[this.data.from].getName(),
+			"target": g_GameData.tribes[this.data.target].getName(),
+		}), x => x.id === "accept_trade" ? "Accept Trade" : "Decline");
 	}
 
 	getTickerText()
@@ -88,7 +108,17 @@ class GSNonAggressionProposal extends GSDiplomacyEvent
 
 	needUserInput()
 	{
-		return false;
+		return this.data.target === g_GameData.playerTribe;
+	}
+
+	setupPanel(descObj, buttons)
+	{
+		const str = "%(from)s wants to sign a non-aggression pact with %(target)s."
+			+ "\nDo we accept?";
+		return super.setupPanel(descObj, buttons, sprintf(str, {
+			"from": g_GameData.tribes[this.data.from].getName(),
+			"target": g_GameData.tribes[this.data.target].getName(),
+		}), x => x.id === "accept_nap" ? "Accept Pact" : "Decline");
 	}
 
 	getTickerText()
