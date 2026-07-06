@@ -58,6 +58,10 @@ class Province
 		this.garrison = 0;
 		this.happiness = 50; // 0-100, affects tax revenue
 		this.inRevolt = false; // Flag to track if province is in revolt
+		this.buildings = [];
+		this.buildQueue = [];
+		this.buildProgress = 0;
+		this.buildingOwner = undefined;
 	}
 
 	Serialize()
@@ -66,7 +70,11 @@ class Province
 			"ownerTribe": this.ownerTribe,
 			"garrison": this.garrison > 0 ? this.garrison : undefined,
 			"happiness": this.happiness,
-			"inRevolt": this.inRevolt || false
+			"inRevolt": this.inRevolt || false,
+			"buildings": this.buildings,
+			"buildQueue": this.buildQueue,
+			"buildProgress": this.buildProgress,
+			"buildingOwner": this.buildingOwner
 		};
 	}
 
@@ -76,6 +84,10 @@ class Province
 		this.garrison = data.garrison || 0;
 		this.happiness = data.happiness !== undefined ? data.happiness : 50;
 		this.inRevolt = data.inRevolt || false;
+		this.buildings = data.buildings || [];
+		this.buildQueue = data.buildQueue || [];
+		this.buildProgress = data.buildProgress || 0;
+		this.buildingOwner = data.buildingOwner;
 	}
 
 	// UI
@@ -154,6 +166,7 @@ class Province
 			g_GameData.tribes[this.ownerTribe].LoseControl(this.code);
 
 		this.ownerTribe = tribe;
+		this.buildingOwner = tribe;
 
 		if (tribe && g_GameData.tribes[tribe])
 			g_GameData.tribes[tribe].GainControl(this.code);
@@ -168,7 +181,64 @@ class Province
 		if (this.data.provinceType === "sea")
 			return 0;
 
-		return 100 - this.garrison * 50;
+		let balance = 100 - this.garrison * 50;
+		for (const buildingId of this.buildings)
+		{
+			const data = g_GameData.getProvinceBuildingData(buildingId);
+			if (data)
+				balance += data.damageBonus;
+		}
+		return balance;
+	}
+
+	getDamageBonus()
+	{
+		let bonus = 0;
+		for (const buildingId of this.buildings)
+		{
+			const data = g_GameData.getProvinceBuildingData(buildingId);
+			if (data)
+				bonus += data.damageBonus;
+		}
+		return bonus;
+	}
+
+	getBuildableStructures()
+	{
+		return g_GameData.getProvinceBuildingDefinitions();
+	}
+
+	startBuilding(buildingId)
+	{
+		if (!g_GameData.getProvinceBuildingData(buildingId))
+			return false;
+		if (this.buildQueue.length >= 1)
+			return false;
+		const tribe = g_GameData.tribes[this.ownerTribe];
+		if (!tribe || tribe.money < g_GameData.getProvinceBuildingData(buildingId).cost)
+			return false;
+		tribe.money -= g_GameData.getProvinceBuildingData(buildingId).cost;
+		this.buildQueue = [buildingId];
+		this.buildProgress = 0;
+		this.buildingOwner = this.ownerTribe;
+		return true;
+	}
+
+	processConstruction()
+	{
+		if (!this.buildQueue.length || !this.ownerTribe)
+			return false;
+		this.buildProgress++;
+		const definition = g_GameData.getProvinceBuildingData(this.buildQueue[0]);
+		if (!definition)
+			return false;
+		if (this.buildProgress >= definition.buildTime)
+		{
+			this.buildings.push(this.buildQueue.shift());
+			this.buildProgress = 0;
+			return true;
+		}
+		return false;
 	}
 	// TODO: A*
 	canTravel(code)

@@ -28,6 +28,8 @@ class GameData
 		this.statistics = undefined;
 
 		this.mapTypes = new MapTypes();
+		this.provinceBuildingData = Engine.ReadJSONFile("campaigns/grand_strategy/data/province_buildings.json") || { buildings: [] };
+		this.provinceBuildingDefinitions = this.provinceBuildingData.buildings || [];
 
 		this.pastTurnEvents = [];
 	}
@@ -535,6 +537,7 @@ class GameData
 
 			// Process happiness and revolts
 			this.processProvinceHappiness();
+			this.processProvinceConstruction();
 		}
 		else if (this.turnI === 5)
 		{
@@ -1120,6 +1123,22 @@ killGeneral(hero)
 			if (enemiesB.has(enemy))
 				return true;
 		return false;
+	}
+
+	getProvinceBuildingDefinitions()
+	{
+		return this.provinceBuildingDefinitions;
+	}
+
+	getProvinceBuildingData(buildingId)
+	{
+		return this.provinceBuildingDefinitions.find(b => b.id === buildingId);
+	}
+
+	processProvinceConstruction()
+	{
+		for (const province of Object.values(this.provinces))
+			province.processConstruction();
 	}
 
 	processTradeIncome()

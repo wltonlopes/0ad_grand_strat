@@ -31,7 +31,13 @@ class ProvinceDetailsWindow
 			str += `Garrison strength: ${province.garrison}\n`;
 
 		if (infoLevel >= 2)
+		{
 			str += `Balance: ${province.getBalance()}\n`;
+			str += `Damage Bonus: ${province.getDamageBonus()}\n`;
+			str += `Structures: ${province.buildings.length ? province.buildings.join(", ") : "None"}\n`;
+			if (province.buildQueue.length)
+				str += `Construction: ${province.buildQueue[0]} (${province.buildProgress}/${g_GameData.getProvinceBuildingData(province.buildQueue[0])?.buildTime || 0})\n`;
+		}
 
 		str += `\nGenerals: ${tribe.generals.length}/${tribe.maxGenerals}\n`;
 		str += `\n\n` + coloredText("Right-click the province to make actions", "green");
@@ -52,6 +58,38 @@ class ProvinceDetailsWindow
 		{
 			ownerBtn.enabled = false;
 			ownerBtn.sprite = "grayscale:stretched:session/portraits/emblems/emblem_gaia.png";
+		}
+
+		const buildBtn = Engine.TryGetGUIObjectByName("provinceBuildButton");
+		const buildList = Engine.TryGetGUIObjectByName("provinceBuildList");
+		if (buildBtn && buildList)
+		{
+			buildBtn.hidden = province.ownerTribe !== g_GameData.playerTribe;
+			buildList.hidden = province.ownerTribe !== g_GameData.playerTribe;
+			if (province.ownerTribe === g_GameData.playerTribe)
+			{
+				buildBtn.caption = "Build Structure";
+				buildBtn.onPress = () =>
+				{
+					const defs = province.getBuildableStructures();
+					buildList.list = defs.map(def => `${def.name} (${def.cost} gold / ${def.buildTime} turns)`);
+					buildList.selected = -1;
+				};
+				buildList.onSelectionChange = () =>
+				{
+					if (buildList.selected < 0)
+						return;
+					const defs = province.getBuildableStructures();
+					const def = defs[buildList.selected];
+					if (!def)
+						return;
+					if (province.startBuilding(def.id))
+					{
+						g_GameData.save();
+						this.display();
+					}
+				};
+			}
 		}
 
 		const trainBtn = Engine.TryGetGUIObjectByName("trainGeneral");

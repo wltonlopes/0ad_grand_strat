@@ -99,6 +99,10 @@
 				</object>
 				<object name="provinceDetailsText" type="text" style="ModernLabelText" size="0 40 100% 100%" />
 				<object type="button" name="provinceOwnerButton" sprite="stretched:session/portraits/emblems/emblem_achaemenids.png" size="100%-70 10 100%-10 70"/>
+				<object name="provinceBuildButton" type="button" style="StoneButtonFancy" size="20 100%-90 100%-20 100%-62" hidden="true">
+					<translatableAttribute id="caption">Build</translatableAttribute>
+				</object>
+				<object name="provinceBuildList" type="list" style="ModernList" size="20 100%-60 100%-20 100%-12" hidden="true"/>
 			
 			<object
 				name="trainGeneral"
