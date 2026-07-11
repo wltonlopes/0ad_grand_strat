@@ -6,7 +6,7 @@
 
 	<script directory="gui/campaigns/grand_strategy/init/"/>
 
-	<object type="image" size="0 0 100% 100%" style="ModernWindow" name="initPageWindow">
+	<object type="image" size="0 0 100% 100%" sprite="stretched:campaigns/grand_strategy/art/background_init.png" style="ModernWindow" name="initPageWindow">
 
 		<object name="abortButton" type="button" size="32 100%-60 300 100%-32" style="StoneButtonFancy"/>
 

@@ -46,7 +46,7 @@
 
 	<script file="gui/campaigns/grand_strategy/z_init.js"/>
 
-	<object z="0" type="image" sprite="campaignBackground" size="0 0 100% 100%" name="campaignMenuWindow">
+	<object z="0" type="image" sprite="stretched:campaigns/grand_strategy/art/background_final.png" size="0 0 100% 100%" name="campaignMenuWindow">
 	<object
 		name="worldMap"
 		z="1"
@@ -55,7 +55,7 @@
 	/>
 	<object
 		name="campaignBaseMap"
-		z="1"
+		z="2"
 		type="image"
 		sprite="stretched:campaigns/grand_strategy/art/campaign_map.png"
 	/>
@@ -430,7 +430,7 @@
 
 			<object
 				type="image"
-				sprite="panelShader"
+			    sprite="stretched:campaigns/grand_strategy/art/windows_background_gameover.png"
 				size="50%-400 80 50%+400 100%-80">
 
 				<object
