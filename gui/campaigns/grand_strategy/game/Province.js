@@ -203,6 +203,26 @@ class Province
 		return bonus;
 	}
 
+	getBuildingNames()
+	{
+		return this.buildings.map(buildingId => {
+			const data = g_GameData.getProvinceBuildingData(buildingId);
+			return data ? data.name : buildingId;
+		});
+	}
+
+	getConstructionStatusText()
+	{
+		if (!this.buildQueue.length)
+			return "";
+
+		const definition = g_GameData.getProvinceBuildingData(this.buildQueue[0]);
+		if (!definition)
+			return "";
+
+		return `${definition.name} (${this.buildProgress}/${definition.buildTime})`;
+	}
+
 	getBuildableStructures()
 	{
 		return g_GameData.getProvinceBuildingDefinitions();

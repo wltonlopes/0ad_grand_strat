@@ -19,7 +19,7 @@
 			</object>
 
 			<object name="page2" size="16 466 100%-16 100%">
-				<object size="16 0 100%-16 110">
+				<object size="16 0 100%-16 170">
 					<object name="playerSettings" type="text" size="0 0 100% 32" style="ModernLabelText"/>
 					<object size="0 40 100% 66">
 						<object name="civSelectLabel" type="text" size="0 0 140 100%" style="ModernLabelText"/>
@@ -28,13 +28,17 @@
 						<object name="heroName" type="input" size="100%-246 0 100% 100%" style="ModernInput"/>
 					</object>
 					<object size="0 80 100% 106">
+						<object name="regionSelectLabel" type="text" size="0 0 140 100%" style="ModernLabelText"/>
+						<object name="regionSelect" type="dropdown" size="144 0 340 100%" style="ModernDropDown"/>
+					</object>
+					<object size="0 120 100% 146">
 						<object name="provinceSelectLabel" type="text" size="0 0 140 100%" style="ModernLabelText"/>
 						<object name="provinceSelect" type="dropdown" size="144 0 340 100%" style="ModernDropDown"/>
 						<object name="tribeNameLabel" type="text" size="100%-350 0 100%-250 100%" style="ModernLabelText"/>
 						<object name="tribeName" type="input" size="100%-246 0 100% 100%" style="ModernInput"/>
 					</object>
 				</object>
-				<object size="16 118 100%-16 100%-16">
+				<object size="16 178 100%-16 100%-16">
 					<object name="gameSettings" type="text" size="0 0 100% 32" style="ModernLabelText"/>
 					<object size="0 40 100% 66">
 						<object name="difficultySelectLabel" type="text" size="0 0 140 100%" style="ModernLabelText"/>

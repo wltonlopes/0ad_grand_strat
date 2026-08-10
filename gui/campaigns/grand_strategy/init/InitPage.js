@@ -1,3 +1,22 @@
+const REGION_DEFINITIONS = [
+	{ id: "world", label: "World", provinceCodes: null },
+	{ id: "africa", label: "Africa", provinceCodes: [
+		"carthage", "cyrenaica", "egyptus", "mauritania", "nile_delta", "numidia", "tripolitania"
+	] },
+	{ id: "asia", label: "Asia", provinceCodes: [
+		"armenia", "bythnia", "cappadocia", "cyprus", "ionia", "judea", "lycia", "phrygia", "pontus", "syria", "thrace"
+	] },
+	{ id: "east_asia", label: "East Asia", provinceCodes: [] },
+	{ id: "north_america", label: "North America", provinceCodes: [] },
+	{ id: "south_america", label: "South America", provinceCodes: [] },
+	{ id: "oceania", label: "Oceania", provinceCodes: [] },
+	{ id: "europe", label: "Europe", provinceCodes: [
+		"andalusia", "aquitania", "basque", "brittany", "central_gaul", "corsica_sardinia", "dacia", "friuli",
+		"galicia", "iberia", "illyria", "latium", "london", "lowlands", "lusitania", "macedonia", "milano",
+		"napolia", "normandy", "peloponnese", "rheinland", "sicilia", "thessalia"
+	] },
+];
+
 class InitPage
 {
 	constructor(closePageCallback)
@@ -5,6 +24,10 @@ class InitPage
 		this.closePageCallback = closePageCallback;
 		this.civs = this.loadCivData();
 		this.provinces = this.loadProvinces();
+		this.provincesByCode = Object.fromEntries(
+			this.provinces.filter(p => p.code && p.provinceType !== "sea").map(p => [p.code, p])
+		);
+		this.regionDefinitions = REGION_DEFINITIONS;
 
 		// UI setup.
 
@@ -30,6 +53,8 @@ class InitPage
 		this.civSelect = Engine.GetGUIObjectByName("civSelect");
 		Engine.GetGUIObjectByName("heroNameLabel").caption = "Hero Name:";
 		this.heroName = Engine.GetGUIObjectByName("heroName");
+		Engine.GetGUIObjectByName("regionSelectLabel").caption = "Region:";
+		this.regionSelect = Engine.GetGUIObjectByName("regionSelect");
 		Engine.GetGUIObjectByName("provinceSelectLabel").caption = "Starting Province:";
 		this.provinceSelect = Engine.GetGUIObjectByName("provinceSelect");
 		Engine.GetGUIObjectByName("tribeNameLabel").caption = "Tribe Name:";
@@ -44,20 +69,15 @@ class InitPage
 		this.startButton.onPress = () => this.onStartRequest();
 
 		this.civSelect.onSelectionChange = () => this.onCivPick();
+		this.regionSelect.onSelectionChange = () => this.onRegionPick();
 
 		this.civSelect.list = Object.values(this.civs).map(x => x.Name);
 		this.civSelect.list_data = Object.values(this.civs).map(x => x.Code);
+		this.regionSelect.list = this.regionDefinitions.map(x => x.label);
+		this.regionSelect.list_data = this.regionDefinitions.map(x => x.id);
+		this.regionSelect.selected = this.regionDefinitions.findIndex(x => x.id === "world");
 
-		const startProvinces = this.provinces.filter(
-			p => p.provinceType !== "sea"
-		);
-
-		this.provinceSelect.list =
-			startProvinces.map(p => p.name);
-
-		this.provinceSelect.list_data =
-			startProvinces.map(p => p.code);
-
+		this.applyProvinceFilter();
 		this.difficultySelect.list = ["Easy", "Medium", "Hard"];
 		this.difficultySelect.list_data = ["easy", "medium", "hard"];
 		this.difficultySelect.selected = 0;
@@ -134,6 +154,59 @@ class InitPage
 				this.civSelect.list[
 					this.civSelect.selected
 				];
+	}
+
+	getRegionDefinition(regionId)
+	{
+		return this.regionDefinitions.find(x => x.id === regionId) ?? this.regionDefinitions[0];
+	}
+
+	getProvincesForRegion(regionId)
+	{
+		const region = this.getRegionDefinition(regionId);
+		if (!region)
+			return [];
+
+		if (region.id === "world" || !region.provinceCodes)
+			return this.provinces.filter(p => p.provinceType !== "sea");
+
+		return region.provinceCodes
+			.map(code => this.provincesByCode[code])
+			.filter(Boolean)
+			.filter(p => p.provinceType !== "sea");
+	}
+
+	onRegionPick()
+	{
+		this.applyProvinceFilter();
+	}
+
+	applyProvinceFilter()
+	{
+		const regionId = this.regionSelect.list_data[this.regionSelect.selected] ?? "world";
+		const filteredProvinces = this.getProvincesForRegion(regionId);
+		const previousSelectedCode = this.provinceSelect.list_data[this.provinceSelect.selected] ?? null;
+
+		this.provinceSelect.list = filteredProvinces.map(p => p.name);
+		this.provinceSelect.list_data = filteredProvinces.map(p => p.code);
+
+		if (filteredProvinces.length === 0)
+		{
+			this.provinceSelect.selected = -1;
+			return;
+		}
+
+		const preferredCode = this.getDefaultStartingProvince(
+			this.civSelect.list_data[this.civSelect.selected]
+		);
+		let targetIndex = filteredProvinces.findIndex(p => p.code === previousSelectedCode);
+		if (targetIndex === -1)
+			targetIndex = filteredProvinces.findIndex(p => p.code === preferredCode);
+		if (targetIndex === -1)
+			targetIndex = 0;
+
+		this.provinceSelect.selected = targetIndex;
+		this.customProvince = false;
 	}
 
 	render()

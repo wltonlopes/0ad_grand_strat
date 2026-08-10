@@ -99,10 +99,27 @@
 				</object>
 				<object name="provinceDetailsText" type="text" style="ModernLabelText" size="0 40 100% 100%" />
 				<object type="button" name="provinceOwnerButton" sprite="stretched:session/portraits/emblems/emblem_achaemenids.png" size="100%-70 10 100%-10 70"/>
-				<object name="provinceBuildButton" type="button" style="StoneButtonFancy" size="20 100%-90 100%-20 100%-62" hidden="true">
+				<object name="provinceBuildButton" type="button" style="StoneButtonFancy" size="20 100%-120 100%-20 100%-92" hidden="true">
 					<translatableAttribute id="caption">Build</translatableAttribute>
 				</object>
-				<object name="provinceBuildList" type="list" style="ModernList" size="20 100%-60 100%-20 100%-12" hidden="true"/>
+				<object name="provinceConstructionButton" type="button" style="StoneButtonFancy" size="20 100%-90 100%-20 100%-62" hidden="true">
+					<translatableAttribute id="caption">Construction</translatableAttribute>
+				</object>
+				<object name="provinceBuildPanel" hidden="true" size="20 100%-150 100%-20 100%-12" type="image" sprite="campaignBackground">
+					<object name="provinceBuildOption[0]" type="button" style="StoneButtonFancy" size="0 0 100% 28" hidden="true" sprite="stretched:session/icons/construction.png"/>
+					<object name="provinceBuildOption[1]" type="button" style="StoneButtonFancy" size="0 30 100% 58" hidden="true" sprite="stretched:session/icons/construction.png"/>
+					<object name="provinceBuildOption[2]" type="button" style="StoneButtonFancy" size="0 60 100% 88" hidden="true" sprite="stretched:session/icons/construction.png"/>
+					<object name="provinceBuildOption[3]" type="button" style="StoneButtonFancy" size="0 90 100% 118" hidden="true" sprite="stretched:session/icons/construction.png"/>
+					<object name="provinceBuildOption[4]" type="button" style="StoneButtonFancy" size="0 120 100% 148" hidden="true" sprite="stretched:session/icons/construction.png"/>
+				</object>
+
+				<object name="provinceConstructionPanel" hidden="true" size="50%-175 120 50%+175 420" z="1000" type="image" sprite="campaignBackground">
+					<object style="ModernLabelText" type="text" size="0 0 100% 32">Construction</object>
+					<object name="provinceConstructionPanelText" type="text" style="ModernLabelText" size="10 36 100%-10 100%-40" />
+					<object name="provinceConstructionCloseButton" type="button" style="StoneButtonFancy" size="20 100%-34 100%-20 100%-10">
+						<translatableAttribute id="caption">Close</translatableAttribute>
+					</object>
+				</object>
 			
 			<object
 				name="trainGeneral"
